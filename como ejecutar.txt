@@ -1,0 +1,6 @@
+PASOS PARA EJECUTAR (DSP TENEMOS QUE HACER UN MAKEFILE CDO ESTE TDO TERMINADO)
+
+$ gcc -o child child.c -lcrypto
+$ gcc -c -m32 main.c
+$ gcc -m32 main.o -o main
+$ ./main

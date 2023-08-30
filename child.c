@@ -5,13 +5,19 @@
 
 #define READ_BUFFER_SIZE 1024
 
-int main(int argc, char *argv[]) {
-    if (argc < 2) {
-        printf("Uso: %s <nombre_del_archivo>\n", argv[0]);
-        return 1;
-    }
+void makeMD5 (char *argv[]);
 
-    const char *filename = argv[1];
+
+int main(int argc, char *argv[]) {
+
+
+    for(int i=1;i<argc;i++)
+        makeMD5(&argv[i]);
+
+}
+
+void makeMD5 (char *argv){
+    const char *filename = argv;
     FILE *file = fopen(filename, "rb");
 
     if (!file) {
