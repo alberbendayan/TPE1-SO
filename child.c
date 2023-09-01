@@ -16,6 +16,7 @@ int main(int argc, char *argv[]) {
 
 }
 
+/*
 void makeMD5 (char *argv){
     const char *filename = argv;
     FILE *file = fopen(filename, "rb");
@@ -47,4 +48,4 @@ void makeMD5 (char *argv){
     printf("\n");
 
     return 0;
-}
+}*/

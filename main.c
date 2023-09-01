@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
         printf("Ingrese un argumento\n");
         //return 1;
     }
-
+    // este for es testing
     for(int i=0; i<PROCESSES; i++){
         char * archivo;
         if(i%2==0)
