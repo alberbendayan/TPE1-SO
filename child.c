@@ -1,3 +1,4 @@
+// Este es el hijo, un 9 robusto como la araña
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -26,7 +27,7 @@ void makeMD5 (char *argv){
     }
     char command[256];
     snprintf(command, sizeof(command), "md5sum %s", filename);
-    printf("Command: %s",command);
+    //printf("Command: %s",command);
 
     // Ejecuta el comando md5sum
     //printf("Calculando el hash MD5...\n");

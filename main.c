@@ -10,10 +10,9 @@
 #include <sys/stat.h>
 #include <string.h>
 
-#define PROCESSES 2
+#define SLAVES 2
 
 void callSlave (char * archivo);
-void openFiles(char* path);
 void printFiles(char* path,int tabs);
 
 int main(int argc, char *argv[]) {
@@ -24,17 +23,52 @@ int main(int argc, char *argv[]) {
         //return 1;
     }
 
-    //openFiles(argv[1]);
+    pid_t slaves[SLAVES];
+    int pipes[SLAVES][2]; // Un array de pipes para la comunicación entre slaves y padre
+
+
+    for (int i = 0; i < SLAVES - 1; i++) {
+        if (pipe(pipes[i]) == -1) {
+            perror("Error al crear la tubería");
+            exit(1);
+        }
+    }
+
+    for (int i = 0; i < SLAVES; i++) {
+        pid_t pid = fork();
+        if (pid == -1) {
+            perror("Error al crear el proceso");
+            exit(1);
+        } else if (pid == 0) {
+            // Código del proceso hijo
+            if (i > 0) {
+                // Redirigir la entrada estándar del proceso hijo desde el pipe anterior
+                close(pipes[i - 1][1]);
+                dup2(pipes[i - 1][0], STDIN_FILENO);
+                close(pipes[i - 1][0]);
+            }
+
+            if (i < SLAVES - 1) {
+                // Redirigir la salida estándar del proceso hijo al pipe
+                close(pipes[i][0]);
+                dup2(pipes[i][1], STDOUT_FILENO);
+                close(pipes[i][1]);
+            }
+
+            // Ejecutar un programa usando execve
+            char *argv[] = {"./child", NULL}; // EL SEGUNDO PARAMETRO ES EL ARCHIVOO
+            execve("./child", argv, NULL);
+            perror("execve"); // Esto solo se ejecuta si execve falla
+            exit(1);
+        } else {
+            slaves[i] = pid;
+        }
+    }
+
     printFiles(argv[1],0);
 
 
-
-    // este for es testing
-    /*for(int i=0; i<PROCESSES; i++){
-        callSlave("README.md");
-    }*/
-
-    for (int i = 0; i < PROCESSES; i++) {
+    for (int i = 0; i < SLAVES; i++) {
         int status;
         waitpid(-1, &status, 0); // Esperar a que cualquier proceso hijo termine
         if (WIFEXITED(status)) {
@@ -68,7 +102,7 @@ void printFiles(char* path, int tabs){
         //chdir("../");
         closedir(aux);
     }else     {
-        printf("%s\n",path);
+        //printf("%s\n",path);
         callSlave(path);
         return;
     }
