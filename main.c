@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
      // Arrays de pipes para la comunicación entre slaves y padre
     int pipesToSlave[cantSlaves][2];
     int pipesFromSlave[cantSlaves][2];
-
+    int filesInSlave[cantSlaves];
     
  
 
@@ -78,28 +78,25 @@ int main(int argc, char *argv[]) {
             close(pipesToSlave[i][0]);
             close(pipesFromSlave[i][1]);
             
-        }
-    }
-
-
-
-    for (int i=0; i<cantSlaves; i++){
-        printf("Forcito %d y cant de esclavos%d\n",i,cantSlaves);
-        for(int k=0;k<INICIALARGS;k++){
-            printf("Forcito interno %d \n",k);
-            if(iArgs >= argc){ // es muy improbable que se llegue a este caso
-                k=INICIALARGS; // para salir del for interno
-                i=cantSlaves; // para salir del for externo xq ya no hay mas archivos
-            }else{
-                printf("A punto de abrir la tuberia\n");
-                write(pipesToSlave[i][1],argv[iArgs],strlen(argv[iArgs]));
-                printf("Me fui de la tuberia\n");
-                iArgs++;
+            for(int k=0;k<INICIALARGS;k++){
+                
+                if(iArgs >= argc){ // es muy improbable que se llegue a este caso
+                    k=INICIALARGS; // para salir del for interno
+                }else{
+                    write(pipesToSlave[i][1],argv[iArgs],strlen(argv[iArgs]));
+                    filesInSlave[i]++;
+                    iArgs++;
+                }
             }
         }
     }
 
-    printf("Sali del forcito\n");
+    while(1){//RARO
+        
+    } 
+
+
+   
 
 
 
