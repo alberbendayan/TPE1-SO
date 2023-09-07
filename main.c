@@ -1,6 +1,3 @@
-// este va a ser el archivo padre
-// juega de 5 (Enzo Fernandez), distribuye entre los hijo
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -10,7 +7,9 @@
 #include <sys/stat.h>
 #include <string.h>
 
-#define SLAVES 2
+//#define SLAVES 2
+
+int cantSlaves;
 
 void callSlave (char * archivo);
 void printFiles(char* path,int tabs);
@@ -23,18 +22,40 @@ int main(int argc, char *argv[]) {
         //return 1;
     }
 
-    pid_t slaves[SLAVES];
-    int pipes[SLAVES][2]; // Un array de pipes para la comunicación entre slaves y padre
+    cantSlaves = argc/10 + 1;
+    if (cantSlaves >10)
+        cantSlaves=10;
 
+    printf("cant slaves %d\n",cantSlaves);
+    // Un esclavo cada 10 archivos y como maximo 10 esclavos
 
-    for (int i = 0; i < SLAVES - 1; i++) {
-        if (pipe(pipes[i]) == -1) {
-            perror("Error al crear la tubería");
+    pid_t slaves[cantSlaves];
+
+    int pipesToSlave[cantSlaves][2]; // Un array de pipes para la comunicación entre slaves y padre
+    int pipesFromSlave[cantSlaves][2];
+
+    // este for crea los pipes
+    for (int i = 0; i < cantSlaves; i++) {
+        if (pipe(pipesToSlave[i]) == -1 || pipe(pipesFromSlave[i]) == -1) {
+            perror("Error al crear el pipe");
             exit(1);
         }
     }
 
-    for (int i = 0; i < SLAVES; i++) {
+    for (int i=0; i<cantSlaves; i++){
+        // MODULARIZAR
+        slaves[i] = fork();
+        if(slaves[i]==-1){
+            perror("Error al crear el proceso");
+            exit(1);
+        }
+
+        if(slaves[i]==0){ // proceso hijo
+            // CLOSE 0 1
+        }
+    }
+/*
+    for (int i = 0; i < slaves; i++) {
         pid_t pid = fork();
         if (pid == -1) {
             perror("Error al crear el proceso");
@@ -48,7 +69,7 @@ int main(int argc, char *argv[]) {
                 close(pipes[i - 1][0]);
             }
 
-            if (i < SLAVES - 1) {
+            if (i < slaves - 1) {
                 // Redirigir la salida estándar del proceso hijo al pipe
                 close(pipes[i][0]);
                 dup2(pipes[i][1], STDOUT_FILENO);
@@ -56,7 +77,7 @@ int main(int argc, char *argv[]) {
             }
 
             // Ejecutar un programa usando execve
-            char *argv[] = {"./child", NULL}; // EL SEGUNDO PARAMETRO ES EL ARCHIVOO
+            char *argv[] = {"./child","./child", NULL}; // EL SEGUNDO PARAMETRO ES EL ARCHIVOO
             execve("./child", argv, NULL);
             perror("execve"); // Esto solo se ejecuta si execve falla
             exit(1);
@@ -65,21 +86,22 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    printFiles(argv[1],0);
+    //printFiles(argv[1],0);
+*/
 
-
-    for (int i = 0; i < SLAVES; i++) {
+    // ESPERA A QUE TERMINEN TODOS LOS PROCESOS HIJOS
+    for (int i = 0; i < cantSlaves; i++) {
         int status;
         waitpid(-1, &status, 0); // Esperar a que cualquier proceso hijo termine
         if (WIFEXITED(status)) {
             printf("Proceso hijo terminado con estado %d.\n", WEXITSTATUS(status));
         }
     }
-
     printf("Todos los procesos hijos han terminado. Programa principal finalizado.\n");
 
 }
 
+/*
 void printFiles(char* path, int tabs){
     struct stat stat1;
     struct dirent* dirent1;
@@ -107,10 +129,9 @@ void printFiles(char* path, int tabs){
         return;
     }
 }
+*/
 
-
-
-void callSlave (char * archivo){
+/*void callSlave (char * archivo){
     pid_t child_pid;
     child_pid = fork();
 
@@ -124,3 +145,7 @@ void callSlave (char * archivo){
         exit(1);
     }
 }
+*/
+
+
+//void forkAndExecuteSlave (pid_t *slave){}

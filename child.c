@@ -1,4 +1,3 @@
-// Este es el hijo, un 9 robusto como la araña
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
