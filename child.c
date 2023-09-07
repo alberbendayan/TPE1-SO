@@ -10,8 +10,18 @@ void makeMD5 (char *argv);
 
 int main(int argc, char *argv[]) {
 
-    for(int i=1;i<argc;i++)
-        makeMD5(argv[i]);
+    printf("Llegue del negro\n");
+
+    char * msg;
+    int characterRead;
+    while (1)
+    {
+        characterRead=read(0,msg,READ_BUFFER_SIZE);
+        if(characterRead>0){
+            makeMD5(msg);
+        }
+    }
+    
 
 }
 

@@ -9,9 +9,10 @@
 
 //#define SLAVES 2
 #define BUFFERSIZE 512
+#define INICIALARGS 2
 
-int cantSlaves;
-char buffer[BUFFERSIZE]={};
+int cantSlaves,iArgs=1;
+
 
 void callSlave (char * archivo);
 void printFiles(char* path,int tabs);
@@ -23,10 +24,12 @@ int main(int argc, char *argv[]) {
         return 1;
         //return 1;
     }
+
     // Un esclavo cada 10 archivos y como maximo 10 esclavos
-    cantSlaves = argc/10 + 1;
+    cantSlaves = argc/5 + 1;
     if (cantSlaves >10)
         cantSlaves=10;
+
 
     pid_t slaves[cantSlaves];
      // Arrays de pipes para la comunicación entre slaves y padre
@@ -38,7 +41,7 @@ int main(int argc, char *argv[]) {
 
     for (int i=0; i<cantSlaves; i++){
         // este for crea los pipes
-          if (pipe(pipesToSlave[i]) == -1 || pipe(pipesFromSlave[i]) == -1) {
+        if (pipe(pipesToSlave[i]) == -1 || pipe(pipesFromSlave[i]) == -1) {
             perror("Error al crear el pipe");
             exit(1);
         }
@@ -60,23 +63,43 @@ int main(int argc, char *argv[]) {
             close(pipesToSlave[i][0]);
             close(pipesFromSlave[i][1]);
 
+            
+            // En lugar de mandar una parte de los archivos por aca y otra por pipes
+            // como equipo definimos enviar todos los archivos por pipes
+
+            char *argv1[] = {"./child", NULL}; // le puse argv1 para q sea diferente al argv
+            execve("./child", argv1, NULL);
+            perror("execve"); // Esto solo se ejecuta si execve falla
+            exit(1);
+
         }
         else{//proceso padre
             //cierro los estandar y los que no uso
-            close(0);
-            close(1);
             close(pipesToSlave[i][0]);
             close(pipesFromSlave[i][1]);
-            //reasigno los fd
-            dup(pipesToSlave[i][1]);
-            dup(pipesFromSlave[i][0]);
-            //cierro los fd repetidos
-            close(pipesToSlave[i][1]);
-            close(pipesFromSlave[i][0]);
+            
         }
     }
 
-    
+
+
+    for (int i=0; i<cantSlaves; i++){
+        printf("Forcito %d y cant de esclavos%d\n",i,cantSlaves);
+        for(int k=0;k<INICIALARGS;k++){
+            printf("Forcito interno %d \n",k);
+            if(iArgs >= argc){ // es muy improbable que se llegue a este caso
+                k=INICIALARGS; // para salir del for interno
+                i=cantSlaves; // para salir del for externo xq ya no hay mas archivos
+            }else{
+                printf("A punto de abrir la tuberia\n");
+                write(pipesToSlave[i][1],argv[iArgs],strlen(argv[iArgs]));
+                printf("Me fui de la tuberia\n");
+                iArgs++;
+            }
+        }
+    }
+
+    printf("Sali del forcito\n");
 
 
 
@@ -117,6 +140,7 @@ int main(int argc, char *argv[]) {
 
     // ESPERA A QUE TERMINEN TODOS LOS PROCESOS HIJOS
     for (int i = 0; i < cantSlaves; i++) {
+        printf("Esperando que terminen los pibes\n");
         int status;
         waitpid(-1, &status, 0); // Esperar a que cualquier proceso hijo termine
         if (WIFEXITED(status)) {
