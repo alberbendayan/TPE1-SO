@@ -8,8 +8,10 @@
 #include <string.h>
 
 //#define SLAVES 2
+#define BUFFERSIZE 512
 
 int cantSlaves;
+char buffer[BUFFERSIZE]={};
 
 void callSlave (char * archivo);
 void printFiles(char* path,int tabs);
@@ -21,39 +23,63 @@ int main(int argc, char *argv[]) {
         return 1;
         //return 1;
     }
-
+    // Un esclavo cada 10 archivos y como maximo 10 esclavos
     cantSlaves = argc/10 + 1;
     if (cantSlaves >10)
         cantSlaves=10;
 
-    printf("cant slaves %d\n",cantSlaves);
-    // Un esclavo cada 10 archivos y como maximo 10 esclavos
-
     pid_t slaves[cantSlaves];
-
-    int pipesToSlave[cantSlaves][2]; // Un array de pipes para la comunicación entre slaves y padre
+     // Arrays de pipes para la comunicación entre slaves y padre
+    int pipesToSlave[cantSlaves][2];
     int pipesFromSlave[cantSlaves][2];
 
-    // este for crea los pipes
-    for (int i = 0; i < cantSlaves; i++) {
-        if (pipe(pipesToSlave[i]) == -1 || pipe(pipesFromSlave[i]) == -1) {
+    
+ 
+
+    for (int i=0; i<cantSlaves; i++){
+        // este for crea los pipes
+          if (pipe(pipesToSlave[i]) == -1 || pipe(pipesFromSlave[i]) == -1) {
             perror("Error al crear el pipe");
             exit(1);
         }
-    }
-
-    for (int i=0; i<cantSlaves; i++){
-        // MODULARIZAR
         slaves[i] = fork();
         if(slaves[i]==-1){
             perror("Error al crear el proceso");
             exit(1);
         }
-
         if(slaves[i]==0){ // proceso hijo
-            // CLOSE 0 1
+            //cierro los estandar y los que no uso
+            close(0); 
+            close(1);
+            close(pipesToSlave[i][1]);
+            close(pipesFromSlave[i][0]);
+            //reasigno los fd
+            dup(pipesToSlave[i][0]);
+            dup(pipesFromSlave[i][1]);
+            //cierro los fd repetidos
+            close(pipesToSlave[i][0]);
+            close(pipesFromSlave[i][1]);
+
+        }
+        else{//proceso padre
+            //cierro los estandar y los que no uso
+            close(0);
+            close(1);
+            close(pipesToSlave[i][0]);
+            close(pipesFromSlave[i][1]);
+            //reasigno los fd
+            dup(pipesToSlave[i][1]);
+            dup(pipesFromSlave[i][0]);
+            //cierro los fd repetidos
+            close(pipesToSlave[i][1]);
+            close(pipesFromSlave[i][0]);
         }
     }
+
+    
+
+
+
 /*
     for (int i = 0; i < slaves; i++) {
         pid_t pid = fork();
