@@ -6,12 +6,15 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <string.h>
+#include <sys/select.h>
 
 //#define SLAVES 2
 #define BUFFERSIZE 512
 #define INICIALARGS 2
 
 int cantSlaves,iArgs=1;
+struct timeval timeout;
+
 
 
 void callSlave (char * archivo);
@@ -37,7 +40,7 @@ int main(int argc, char *argv[]) {
     int pipesFromSlave[cantSlaves][2];
     int filesInSlave[cantSlaves];
     
- 
+    
 
     for (int i=0; i<cantSlaves; i++){
         // este for crea los pipes
@@ -45,23 +48,45 @@ int main(int argc, char *argv[]) {
             perror("Error al crear el pipe");
             exit(1);
         }
+       
         slaves[i] = fork();
         if(slaves[i]==-1){
+            
             perror("Error al crear el proceso");
             exit(1);
         }
+        
         if(slaves[i]==0){ // proceso hijo
             //cierro los estandar y los que no uso
-            close(0); 
-            close(1);
-            close(pipesToSlave[i][1]);
-            close(pipesFromSlave[i][0]);
+            
+            if (close(0) == -1) {
+                perror("No se pudo cerrar el file descriptor");
+                 return 1;
+            } 
+            if (close(1) == -1) {
+                perror("No se pudo cerrar el file descriptor");
+                return 1;
+            } 
+            if (close(pipesToSlave[i][1]) == -1) {
+                perror("No se pudo cerrar el file descriptor");
+                 return 1;
+            } 
+            if (close(pipesFromSlave[i][0]) == -1) {
+                perror("No se pudo cerrar el file descriptor");
+                return 1;
+            } 
             //reasigno los fd
             dup(pipesToSlave[i][0]);
             dup(pipesFromSlave[i][1]);
             //cierro los fd repetidos
-            close(pipesToSlave[i][0]);
-            close(pipesFromSlave[i][1]);
+            if (close(pipesToSlave[i][0]) == -1) {
+                perror("No se pudo cerrar el file descriptor");
+                 return 1;
+            } 
+            if (close(pipesFromSlave[i][1]) == -1) {
+                perror("No se pudo cerrar el file descriptor");
+                return 1;
+            }            
 
             
             // En lugar de mandar una parte de los archivos por aca y otra por pipes
@@ -75,6 +100,7 @@ int main(int argc, char *argv[]) {
         }
         else{//proceso padre
             //cierro los estandar y los que no uso
+            
             close(pipesToSlave[i][0]);
             close(pipesFromSlave[i][1]);
             
@@ -91,8 +117,43 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    while(1){//RARO
-        
+
+    // Configurar los descriptores de archivo para select
+    fd_set read_fds;
+    FD_ZERO(&read_fds);
+    int max_fd = -1;
+
+    for (int i = 0; i < cantSlaves; i++) {
+        FD_SET(pipesFromSlave[i][0], &read_fds);
+        if (pipesFromSlave[i][0] > max_fd) {
+            max_fd = pipesFromSlave[i][0];
+        }
+    }
+    while(1){
+        fd_set tmp_fds = read_fds;
+        int ready = select(max_fd + 1, &tmp_fds, NULL, NULL, NULL);
+        if (ready == -1) {
+            perror("Error en select");
+            exit(EXIT_FAILURE);
+        }
+         for (int i = 0; i < cantSlaves; i++) {
+            if (FD_ISSET(pipesFromSlave[i][0], &tmp_fds)) {
+                // Leer datos del descriptor de archivo pipes[i][0] y procesarlos
+                char buffer[BUFFERSIZE];
+                ssize_t bytes_read = read(pipesFromSlave[i][0], buffer, sizeof(buffer));
+                if (bytes_read > 0) {
+                    // ESCRIBIR EN LA SHARE MEMORY LO DEL BUFFER
+                    int hashlength=strlen(buffer);
+                
+                    write(1,buffer,hashlength);
+                    for(int h=0;h<hashlength;h++){
+                        buffer[h]=0;
+                    }
+                } else if (bytes_read != 0) {
+                    perror("Error al leer del pipe");
+                }
+            }
+        }
     } 
 
 
