@@ -129,14 +129,20 @@ int main(int argc, char *argv[]) {
             max_fd = pipesFromSlave[i][0];
         }
     }
+   
     while(1){
+         
         fd_set tmp_fds = read_fds;
+        
         int ready = select(max_fd + 1, &tmp_fds, NULL, NULL, NULL);
+        
         if (ready == -1) {
             perror("Error en select");
             exit(EXIT_FAILURE);
         }
+        
          for (int i = 0; i < cantSlaves; i++) {
+            
             if (FD_ISSET(pipesFromSlave[i][0], &tmp_fds)) {
                 // Leer datos del descriptor de archivo pipes[i][0] y procesarlos
                 char buffer[BUFFERSIZE];
@@ -154,6 +160,7 @@ int main(int argc, char *argv[]) {
                 }
             }
         }
+        
     } 
 
 

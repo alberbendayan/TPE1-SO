@@ -5,20 +5,21 @@
 
 #define READ_BUFFER_SIZE 1024
 
-void makeMD5 (char *argv);
+void makeMD5 (char *argv,char* hash);
+
 
 
 int main(int argc, char *argv[]) {
 
-
-    char * msg;
+    char hashMD5[32];
+    char msg[READ_BUFFER_SIZE];
     int characterRead;
     while (1)
     {
         characterRead=read(0,msg,READ_BUFFER_SIZE);
         if(characterRead>0){
-            write(1,"hola",4);
-            makeMD5(msg);
+            makeMD5(msg,hashMD5);
+            write(1,hashMD5,strlen(hashMD5));
 
         }
     }
@@ -27,7 +28,7 @@ int main(int argc, char *argv[]) {
 }
 
 
-void makeMD5 (char *argv){
+void makeMD5 (char *argv,char* hash){
     const char *filename = argv;
     FILE *file = fopen(filename, "rb");
 
@@ -41,14 +42,28 @@ void makeMD5 (char *argv){
 
     // Ejecuta el comando md5sum
     //printf("Calculando el hash MD5...\n");
-    int result = system(command);
+    FILE *pipeMD5 = popen(command, "r");
+    if (!pipeMD5) {
+        perror("Error al abrir el proceso");
+        return 1;
+    }
+
+    char result[32 + 1]; // El hash MD5 tiene 32 caracteres, más el carácter nulo
+    if (fgets(result, sizeof(result), pipeMD5) == NULL) {
+        perror("Error al leer el resultado");
+        pclose(pipeMD5);
+        return 1;
+    }
+
+    pclose(pipeMD5);
+
+    // Elimina el espacio en blanco final si lo hay
+    result[32] = '\0';
+    return result;
 
     // ACA HAY Q ABRIR UN PIPE PARA COMUNICARNOS CON LA CONSOLA
 
-    if (result != 0) {
-        printf("Ocurrió un error al calcular el hash MD5.\n");
-        return;
-    }
+
     /*
     MD5_CTX md5Context;
     MD5_Init(&md5Context);
