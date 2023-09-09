@@ -18,10 +18,9 @@ int main(int argc, char *argv[]) {
     {   
         characterRead=read(0,msg,READ_BUFFER_SIZE);
         msg[characterRead-1]='\0';
-        
         if(characterRead>0){
             makeMD5(msg,hashMD5);
-            write(1,hashMD5,strlen(hashMD5));
+            write(1,hashMD5,strlen(hashMD5)+1);
         }
     }
     
@@ -31,6 +30,7 @@ int main(int argc, char *argv[]) {
 
 void makeMD5 (char *argv,char* hash){
     const char *filename = argv;
+    printf("***** %s\n",filename);
     FILE *file = fopen(filename, "rb");
 
     if (!file) {

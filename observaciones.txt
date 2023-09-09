@@ -1,0 +1,1 @@
+Por alguna razon, solo calculo 1 hash por esclavo segun entiendo.
