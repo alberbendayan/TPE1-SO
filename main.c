@@ -21,6 +21,8 @@ void callSlave (char * archivo);
 void printFiles(char* path,int tabs);
 
 int main(int argc, char *argv[]) {
+    
+
 
     if (argc < 2) {
         printf("Ingrese un argumento\n");
@@ -59,6 +61,15 @@ int main(int argc, char *argv[]) {
         if(slaves[i]==0){ // proceso hijo
             //cierro los estandar y los que no uso
             
+            if (close(pipesToSlave[i][1]) == -1) {
+                perror("No se pudo cerrar el file descriptor");
+                 return 1;
+            } 
+            if (close(pipesFromSlave[i][0]) == -1) {
+                perror("No se pudo cerrar el file descriptor");
+                return 1;
+            }             
+            
             if (close(0) == -1) {
                 perror("No se pudo cerrar el file descriptor");
                  return 1;
@@ -67,17 +78,13 @@ int main(int argc, char *argv[]) {
                 perror("No se pudo cerrar el file descriptor");
                 return 1;
             } 
-            if (close(pipesToSlave[i][1]) == -1) {
-                perror("No se pudo cerrar el file descriptor");
-                 return 1;
-            } 
-            if (close(pipesFromSlave[i][0]) == -1) {
-                perror("No se pudo cerrar el file descriptor");
-                return 1;
-            } 
+
             //reasigno los fd
             dup(pipesToSlave[i][0]);
             dup(pipesFromSlave[i][1]);
+            
+            //dup2(pipesToSlave[i][0],0);
+            //dup2(pipesFromSlave[i][1],1);
             //cierro los fd repetidos
             if (close(pipesToSlave[i][0]) == -1) {
                 perror("No se pudo cerrar el file descriptor");
@@ -87,7 +94,6 @@ int main(int argc, char *argv[]) {
                 perror("No se pudo cerrar el file descriptor");
                 return 1;
             }            
-
             
             // En lugar de mandar una parte de los archivos por aca y otra por pipes
             // como equipo definimos enviar todos los archivos por pipes
@@ -129,12 +135,14 @@ int main(int argc, char *argv[]) {
             max_fd = pipesFromSlave[i][0];
         }
     }
-   
+    
     while(1){
          
         fd_set tmp_fds = read_fds;
+        timeout.tv_sec = 1;       // 5 segundos
+        timeout.tv_usec = 0;
         
-        int ready = select(max_fd + 1, &tmp_fds, NULL, NULL, NULL);
+        int ready = select(max_fd + 1, &tmp_fds, NULL, NULL, &timeout);
         
         if (ready == -1) {
             perror("Error en select");
@@ -142,17 +150,17 @@ int main(int argc, char *argv[]) {
         }
         
          for (int i = 0; i < cantSlaves; i++) {
-            
+            printf("HOLA1\n");
             if (FD_ISSET(pipesFromSlave[i][0], &tmp_fds)) {
                 // Leer datos del descriptor de archivo pipes[i][0] y procesarlos
                 char buffer[BUFFERSIZE];
                 ssize_t bytes_read = read(pipesFromSlave[i][0], buffer, sizeof(buffer));
                 if (bytes_read > 0) {
-                    // ESCRIBIR EN LA SHARE MEMORY LO DEL BUFFER
-                    int hashlength=strlen(buffer);
-                
-                    write(1,buffer,hashlength);
-                    for(int h=0;h<hashlength;h++){
+
+                    
+                    printf("%s\n",buffer);
+                    write(1,buffer,bytes_read);
+                    for(int h=0;h<bytes_read;h++){
                         buffer[h]=0;
                     }
                 } else if (bytes_read != 0) {

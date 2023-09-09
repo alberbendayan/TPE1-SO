@@ -11,16 +11,17 @@ void makeMD5 (char *argv,char* hash);
 
 int main(int argc, char *argv[]) {
 
-    char hashMD5[32];
+    char hashMD5[32+1];
     char msg[READ_BUFFER_SIZE];
     int characterRead;
     while (1)
-    {
+    {   
         characterRead=read(0,msg,READ_BUFFER_SIZE);
+        msg[characterRead-1]='\0';
+        
         if(characterRead>0){
             makeMD5(msg,hashMD5);
             write(1,hashMD5,strlen(hashMD5));
-
         }
     }
     
@@ -42,83 +43,26 @@ void makeMD5 (char *argv,char* hash){
 
     // Ejecuta el comando md5sum
     //printf("Calculando el hash MD5...\n");
+
     FILE *pipeMD5 = popen(command, "r");
     if (!pipeMD5) {
         perror("Error al abrir el proceso");
-        return 1;
-    }
 
+        
+    }
     char result[32 + 1]; // El hash MD5 tiene 32 caracteres, más el carácter nulo
     if (fgets(result, sizeof(result), pipeMD5) == NULL) {
         perror("Error al leer el resultado");
         pclose(pipeMD5);
-        return 1;
+        exit (1);
     }
-
     pclose(pipeMD5);
-
     // Elimina el espacio en blanco final si lo hay
     result[32] = '\0';
-    return result;
-
-    // ACA HAY Q ABRIR UN PIPE PARA COMUNICARNOS CON LA CONSOLA
-
-
-    /*
-    MD5_CTX md5Context;
-    MD5_Init(&md5Context);
-
-    unsigned char buffer[READ_BUFFER_SIZE];
-    size_t bytesRead;
-
-    while ((bytesRead = fread(buffer, 1, sizeof(buffer), file)) > 0) {
-        MD5_Update(&md5Context, buffer, bytesRead);
-    }
-
-    unsigned char hash[MD5_DIGEST_LENGTH];
-    MD5_Final(hash, &md5Context);
-    // en hash queda guardado el md5
-    fclose(file);
-
-    printf("El MD5 del archivo %s es: ", filename);
-    for (int i = 0; i < MD5_DIGEST_LENGTH; i++) {
-        printf("%02x", hash[i]);
-    }*/
+    for(int i=0;i<sizeof(result);i++)
+    hash[i]=result[i];
     printf("\n");
-
     return;
 }
 
-/*
-void makeMD5 (char *argv){
-    const char *filename = argv;
-    FILE *file = fopen(filename, "rb");
 
-    if (!file) {
-        printf("No se pudo abrir el archivo.\n");
-        return 1;
-    }
-
-    MD5_CTX md5Context;
-    MD5_Init(&md5Context);
-
-    unsigned char buffer[READ_BUFFER_SIZE];
-    size_t bytesRead;
-
-    while ((bytesRead = fread(buffer, 1, sizeof(buffer), file)) > 0) {
-        MD5_Update(&md5Context, buffer, bytesRead);
-    }
-
-    unsigned char hash[MD5_DIGEST_LENGTH];
-    MD5_Final(hash, &md5Context);
-    // en hash queda guardado el md5
-    fclose(file);
-
-    printf("El MD5 del archivo %s es: ", filename);
-    for (int i = 0; i < MD5_DIGEST_LENGTH; i++) {
-        printf("%02x", hash[i]);
-    }
-    printf("\n");
-
-    return 0;
-}*/
