@@ -4,6 +4,7 @@
 #include <string.h>
 
 #define READ_BUFFER_SIZE 1024
+#define LONG_HASHMD5 33 // tiene uno demas x el caracter nulo
 
 void makeMD5 (char *argv,char* hash);
 
@@ -37,7 +38,7 @@ void makeMD5 (char *argv,char* hash){
         printf("No se pudo abrir el archivo.\n");
         return;
     }
-    char command[256];
+    char command[256]; // Suponemos que el comando no va a ser mas largo que 256 caracteres
     snprintf(command, sizeof(command), "md5sum %s", filename);
     //printf("Command: %s",command);
 
@@ -50,7 +51,7 @@ void makeMD5 (char *argv,char* hash){
 
         
     }
-    char result[32 + 1]; // El hash MD5 tiene 32 caracteres, más el carácter nulo
+    char result[LONG_HASHMD5]; // El hash MD5 tiene 32 caracteres, más el carácter nulo = 33
     if (fgets(result, sizeof(result), pipeMD5) == NULL) {
         perror("Error al leer el resultado");
         pclose(pipeMD5);
@@ -59,8 +60,9 @@ void makeMD5 (char *argv,char* hash){
     pclose(pipeMD5);
     // Elimina el espacio en blanco final si lo hay
     result[32] = '\0';
-    for(int i=0;i<sizeof(result);i++)
-    hash[i]=result[i];
+    for(int i=0;i<sizeof(result);i++){
+        hash[i]=result[i];
+    }
     printf("\n");
     return;
 }
