@@ -7,10 +7,18 @@
 #include <sys/stat.h>
 #include <string.h>
 #include <sys/select.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+#include <semaphore.h>
+
 
 //#define SLAVES 2
 #define BUFFERSIZE 512
 #define INICIALARGS 1
+
+#define SHM_SIZE 1024  // Tamaño de la memoria compartida
+#define SEM_NAME "/my_semaphore"  // Nombre del semáforo
+
 
 int cantSlaves,iArgs=1;
 struct timeval timeout;
@@ -44,6 +52,7 @@ int main(int argc, char *argv[]) {
     }
 
     pid_t slaves[cantSlaves];
+    pid_t view;
      // Arrays de pipes para la comunicación entre slaves y padre
     int pipesToSlave[cantSlaves][2];
     int pipesFromSlave[cantSlaves][2];
@@ -152,6 +161,43 @@ int main(int argc, char *argv[]) {
             max_fd = pipesFromSlave[i][0];
         }
     }
+
+    view = fork();
+    if(view == 0){
+        sleep(2);
+        char *argv2[] = {"./view", NULL}; // le puse argv1 para q sea diferente al argv
+        execve("./view", argv2, NULL);
+        perror("execve"); // Esto solo se ejecuta si execve falla
+        exit(1);
+
+        int status;
+        waitpid(view, &status, 0); // Esperar a que cualquier proceso hijo termine
+        if (WIFEXITED(status)) {
+            printf("Proceso hijo terminado con estado %d.\n", WEXITSTATUS(status));
+        }
+    }
+
+    int shm_fd;
+    void *shm_ptr;
+    sem_t *sem;
+
+    // Crear o abrir el semáforo
+    sem = sem_open(SEM_NAME, O_CREAT, 0666, 1);
+    if (sem == SEM_FAILED) {
+        perror("sem_open");
+        exit(1);
+    }
+
+    // Crear o abrir la memoria compartida
+    shm_fd = shm_open("/my_shm", O_CREAT | O_RDWR, 0666);
+    if (shm_fd == -1) {
+        perror("shm_open");
+        exit(1);
+    }
+
+    // Configurar el tamaño de la memoria compartida
+    ftruncate(shm_fd, SHM_SIZE);
+
     
     while(1){
          
@@ -174,8 +220,10 @@ int main(int argc, char *argv[]) {
                 ssize_t bytes_read = read(pipesFromSlave[i][0], buffer, sizeof(buffer));
                 if (bytes_read > 0) {
                     // Aca hay q hacer el semaforo para escribir en la view
-                    write(1,buffer,bytes_read);
-                    write(1,"\n",1);
+                    //write(1,buffer,bytes_read);
+                    //write(1,"\n",1);
+
+                    strcpy((char *)shm_ptr, buffer);
 
                     filesDoneBySlave[i]++;
 
