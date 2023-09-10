@@ -4,6 +4,7 @@
 #include <string.h>
 
 #define READ_BUFFER_SIZE 1024
+#define MAX_LONG_RET 256
 #define LONG_HASHMD5 33 // tiene uno demas x el caracter nulo
 
 void makeMD5 (char *argv,char* hash);
@@ -12,12 +13,13 @@ void makeMD5 (char *argv,char* hash);
 
 int main(int argc, char *argv[]) {
 
-    char hashMD5[32+1];
+    char hashMD5[MAX_LONG_RET];
     char msg[READ_BUFFER_SIZE];
     int characterRead;
     while (1)
     {   
         characterRead=read(0,msg,READ_BUFFER_SIZE);
+        //write(1,prueba,strlen(prueba)+1);
         msg[characterRead-1]='\0';
         if(characterRead>0){
             makeMD5(msg,hashMD5);
@@ -31,6 +33,9 @@ int main(int argc, char *argv[]) {
 
 void makeMD5 (char *argv,char* hash){
     const char *filename = argv;
+    
+    pid_t pid = getpid();
+
     printf("***** %s\n",filename);
     FILE *file = fopen(filename, "rb");
 
@@ -47,22 +52,18 @@ void makeMD5 (char *argv,char* hash){
 
     FILE *pipeMD5 = popen(command, "r");
     if (!pipeMD5) {
-        perror("Error al abrir el proceso");
-
-        
+        perror("Error al abrir el proceso");     
     }
     char result[LONG_HASHMD5]; // El hash MD5 tiene 32 caracteres, más el carácter nulo = 33
-    if (fgets(result, sizeof(result), pipeMD5) == NULL) {
+    if (fgets(result, LONG_HASHMD5, pipeMD5) == NULL) {
         perror("Error al leer el resultado");
         pclose(pipeMD5);
         exit (1);
     }
     pclose(pipeMD5);
-    // Elimina el espacio en blanco final si lo hay
-    result[32] = '\0';
-    for(int i=0;i<sizeof(result);i++){
-        hash[i]=result[i];
-    }
+
+    snprintf(hash,MAX_LONG_RET,"PID: %d - HASH: %s - FILE: %s",pid,result,filename);
+
     printf("\n");
     return;
 }

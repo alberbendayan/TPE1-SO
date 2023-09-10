@@ -10,7 +10,7 @@
 
 //#define SLAVES 2
 #define BUFFERSIZE 512
-#define INICIALARGS 2
+#define INICIALARGS 1
 
 int cantSlaves,iArgs=1;
 struct timeval timeout;
@@ -19,6 +19,13 @@ struct timeval timeout;
 
 void callSlave (char * archivo);
 void printFiles(char* path,int tabs);
+void sendFile(char * archivo,int indice,int * filesInSlave,int *iArgs,int fd[][2]);
+
+void sendFile(char * archivo,int indice,int * filesInSlave,int *iArgs,int fd[][2]){
+    write(fd[indice][1],archivo,strlen(archivo)+1);
+    filesInSlave[indice]++;
+    (*iArgs)++;
+}
 
 int main(int argc, char *argv[]) {
     
@@ -26,7 +33,6 @@ int main(int argc, char *argv[]) {
     if (argc < 2) {
         printf("Ingrese un argumento\n");
         return 1;
-        //return 1;
     }
 
     if(argc==2)
@@ -41,7 +47,9 @@ int main(int argc, char *argv[]) {
      // Arrays de pipes para la comunicación entre slaves y padre
     int pipesToSlave[cantSlaves][2];
     int pipesFromSlave[cantSlaves][2];
+
     int filesInSlave[cantSlaves];
+    int filesDoneBySlave[cantSlaves];
     
     
     // este for crea los pipes
@@ -50,7 +58,10 @@ int main(int argc, char *argv[]) {
             perror("Error al crear el pipe");
             exit(1);
         }
-       
+
+        filesDoneBySlave[i]=0;
+        filesInSlave[i]=0; // inicializo ambos contadores
+
         slaves[i] = fork();
         if(slaves[i]==-1){
             
@@ -115,14 +126,20 @@ int main(int argc, char *argv[]) {
                 if(iArgs >= argc){ // es muy improbable que se llegue a este caso
                     k=INICIALARGS; // para salir del for interno
                 }else{
+                    printf("File enviado %s\n",argv[iArgs]);    // BORRAR
+                    sendFile(argv[iArgs],i,filesInSlave,&iArgs,pipesToSlave);
+                    /*
                     write(pipesToSlave[i][1],argv[iArgs],strlen(argv[iArgs])+1);
                     filesInSlave[i]++;
                     iArgs++;
+                    */
                 }
             }
         }
     }
-
+    // Ya enviamos 2 archivos a cada slave
+    // ahora vamos a recibir los resultados 
+    //y volver a enviar otro archivo
 
     // Configurar los descriptores de archivo para select
     fd_set read_fds;
@@ -148,7 +165,7 @@ int main(int argc, char *argv[]) {
             perror("Error en select");
             exit(EXIT_FAILURE);
         }
-         for (int i = 0; i < cantSlaves; i++) {
+        for (int i = 0; i < cantSlaves; i++) {
             
             if (FD_ISSET(pipesFromSlave[i][0], &tmp_fds)) {
                 
@@ -156,8 +173,16 @@ int main(int argc, char *argv[]) {
                 char buffer[BUFFERSIZE];
                 ssize_t bytes_read = read(pipesFromSlave[i][0], buffer, sizeof(buffer));
                 if (bytes_read > 0) {
+                    // Aca hay q hacer el semaforo para escribir en la view
                     write(1,buffer,bytes_read);
                     write(1,"\n",1);
+
+                    filesDoneBySlave[i]++;
+
+                    if(filesDoneBySlave[i]==filesInSlave[i]){
+                        sendFile(argv[iArgs],i,filesInSlave,&iArgs,pipesToSlave);
+                    }
+
                     for(int h=0;h<bytes_read;h++){
                         buffer[h]=0;
                     }
