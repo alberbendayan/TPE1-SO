@@ -23,17 +23,18 @@ int main(int argc, char *argv[]) {
     }*/
 
 
-    while (1)
-    {   
-        characterRead=read(0,msg,READ_BUFFER_SIZE);
-        msg[characterRead-1]='\0';
-        if(characterRead>0){
+      
+
+    while(fgets(msg,sizeof(msg),stdin) != NULL){
+        
+        /*characterRead=read(0,msg,READ_BUFFER_SIZE);
+        msg[characterRead-1]='\0';*/
+        if(msg[0]!=NULL){
             makeMD5(msg,hashMD5);
-            //printf("%s\n",hashMD5);
             write(1,hashMD5,strlen(hashMD5)+1);
-            //write(1,msg,strlen(msg));
         }
     }
+    
     
 
 }
@@ -45,14 +46,15 @@ void makeMD5 (char *argv,char* hash){
     pid_t pid = getpid();
 
     //printf("***** %s\n",filename);
-    FILE *file = fopen(filename, "rb");
+    /*FILE *file = fopen(filename, "rb");
 
     if (!file) {
         printf("No se pudo abrir el archivo.\n");
         return;
-    }
+    }*/
+    
     char command[256]; // Suponemos que el comando no va a ser mas largo que 256 caracteres
-    snprintf(command, sizeof(command), "md5sum %s", filename);
+    snprintf(command, sizeof(command), "md5sum ./%s", filename);
 
     // Ejecuta el comando md5sum
     FILE *pipeMD5 = popen(command, "r");

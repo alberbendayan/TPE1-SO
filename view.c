@@ -15,7 +15,7 @@ int main() {
 
     printf("Estoy en la view\n");
     return 1;
-    /*int shm_fd;
+    int shm_fd;
     void *shm_ptr;
     sem_t *sem;
 
@@ -44,10 +44,9 @@ int main() {
     {
         sem_wait(sem);
         // Leer desde la memoria compartida
-        printf("%s\n", (char *)shm_ptr);
+        printf("Saliendo desde la view: %s\n", (char *)shm_ptr);
         // Liberar el semáforo
         sem_post(sem);
     }
     
-*/
 }

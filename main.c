@@ -30,7 +30,7 @@ void printFiles(char* path,int tabs);
 void sendFile(char * archivo,int indice,int * filesInSlave,int *iArgs,int fd[][2]);
 
 void sendFile(char * archivo,int indice,int * filesInSlave,int *iArgs,int fd[][2]){
-    //printf("File enviado %s\n",archivo);    // BORRAR                 
+    printf("File enviado %s\n",archivo);    // BORRAR                 
     write(fd[indice][1],archivo,strlen(archivo)+1);
     filesInSlave[indice]++;
     (*iArgs)++;
@@ -59,7 +59,6 @@ int main(int argc, char *argv[]) {
     int pipesFromSlave[cantSlaves][2];
 
     int filesInSlave[cantSlaves];
-    int filesDoneBySlave[cantSlaves];
     
     
     // este for crea los pipes
@@ -69,7 +68,6 @@ int main(int argc, char *argv[]) {
             exit(1);
         }
 
-        filesDoneBySlave[i]=0;
         filesInSlave[i]=0; // inicializo ambos contadores
 
         slaves[i] = fork();
@@ -94,8 +92,6 @@ int main(int argc, char *argv[]) {
             dup(pipesToSlave[i][0]);
             dup(pipesFromSlave[i][1]);
             
-            //dup2(pipesToSlave[i][0],0);
-            //dup2(pipesFromSlave[i][1],1);
             //cierro los fd repetidos
 
             if (close(pipesToSlave[i][0]) == -1) {
@@ -109,16 +105,15 @@ int main(int argc, char *argv[]) {
 
             for(int j=0;j<=i;j++){
 
-            if (close(pipesToSlave[j][1]) == -1) {
-                perror("No se pudo cerrar el file descriptor al hijo de escritura");
-                 return 1;
-            } 
-            if (close(pipesFromSlave[j][0]) == -1) {
-                perror("No se pudo cerrar el file descriptor desde el hijo de lectura");
-                return 1;
-            }  
+                if (close(pipesToSlave[j][1]) == -1) {
+                    perror("No se pudo cerrar el file descriptor al hijo de escritura");
+                    return 1;
+                } 
+                if (close(pipesFromSlave[j][0]) == -1) {
+                    perror("No se pudo cerrar el file descriptor desde el hijo de lectura");
+                    return 1;
+                }  
             }
-         
             
             char *argv1[] = {"./child", NULL}; // le puse argv1 para q sea diferente al argv
             execve("./child", argv1, NULL);
@@ -146,9 +141,6 @@ int main(int argc, char *argv[]) {
             }
         }
     }
-    // Ya enviamos 2 archivos a cada slave
-    // ahora vamos a recibir los resultados 
-    //y volver a enviar otro archivo
 
     // Configurar los descriptores de archivo para select
     fd_set read_fds;
@@ -225,9 +217,9 @@ int main(int argc, char *argv[]) {
 
                     //strcpy((char *)shm_ptr, buffer);
 
-                    filesDoneBySlave[i]++;
+                    filesInSlave[i]--;
 
-                    if(filesDoneBySlave[i]==filesInSlave[i]){
+                    if(filesInSlave[i]==0){
                         if(iArgs<argc){
                             sendFile(argv[iArgs],i,filesInSlave,&iArgs,pipesToSlave);
                         }else{
