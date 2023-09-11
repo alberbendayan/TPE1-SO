@@ -14,7 +14,7 @@
 
 //#define SLAVES 2
 #define BUFFERSIZE 512
-#define INICIALARGS 1
+#define INITIALARGS 1
 
 #define SHM_SIZE 1024  // Tamaño de la memoria compartida
 #define SEM_NAME "/my_semaphore"  // Nombre del semáforo
@@ -30,6 +30,7 @@ void printFiles(char* path,int tabs);
 void sendFile(char * archivo,int indice,int * filesInSlave,int *iArgs,int fd[][2]);
 
 void sendFile(char * archivo,int indice,int * filesInSlave,int *iArgs,int fd[][2]){
+    //printf("File enviado %s\n",archivo);    // BORRAR                 
     write(fd[indice][1],archivo,strlen(archivo)+1);
     filesInSlave[indice]++;
     (*iArgs)++;
@@ -131,11 +132,10 @@ int main(int argc, char *argv[]) {
             close(pipesToSlave[i][0]);
             close(pipesFromSlave[i][1]);
             
-            for(int k=0;k<INICIALARGS;k++){
+            for(int k=0;k<INITIALARGS;k++){
                 if(iArgs >= argc){ // es muy improbable que se llegue a este caso
-                    k=INICIALARGS; // para salir del for interno
+                    k=INITIALARGS; // para salir del for interno
                 }else{
-                    printf("File enviado %s\n",argv[iArgs]);    // BORRAR
                     sendFile(argv[iArgs],i,filesInSlave,&iArgs,pipesToSlave);
                     /*
                     write(pipesToSlave[i][1],argv[iArgs],strlen(argv[iArgs])+1);
@@ -220,15 +220,19 @@ int main(int argc, char *argv[]) {
                 ssize_t bytes_read = read(pipesFromSlave[i][0], buffer, sizeof(buffer));
                 if (bytes_read > 0) {
                     // Aca hay q hacer el semaforo para escribir en la view
-                    //write(1,buffer,bytes_read);
-                    //write(1,"\n",1);
+                    write(1,buffer,bytes_read);
+                    write(1,"\n",1);
 
-                    strcpy((char *)shm_ptr, buffer);
+                    //strcpy((char *)shm_ptr, buffer);
 
                     filesDoneBySlave[i]++;
 
                     if(filesDoneBySlave[i]==filesInSlave[i]){
-                        sendFile(argv[iArgs],i,filesInSlave,&iArgs,pipesToSlave);
+                        if(iArgs<argc){
+                            sendFile(argv[iArgs],i,filesInSlave,&iArgs,pipesToSlave);
+                        }else{
+                            //TODOS LOS ARCHIVOS FUERON ENVIADOS 
+                        }
                     }
 
                     for(int h=0;h<bytes_read;h++){

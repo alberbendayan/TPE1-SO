@@ -12,7 +12,10 @@
 #define SEM_NAME "/my_semaphore"  // Nombre del semáforo
 
 int main() {
-    int shm_fd;
+
+    printf("Estoy en la view\n");
+    return 1;
+    /*int shm_fd;
     void *shm_ptr;
     sem_t *sem;
 
@@ -46,5 +49,5 @@ int main() {
         sem_post(sem);
     }
     
-
+*/
 }
