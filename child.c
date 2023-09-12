@@ -36,17 +36,33 @@ int main(int argc, char *argv[]) {
 
     //while(fgets(msg,sizeof(msg),stdin) != NULL){
         
-    while(characterRead=read(0,msg,READ_BUFFER_SIZE)>0){
+   /* while(characterRead=read(0,msg,READ_BUFFER_SIZE)>0){
         
-        /*characterRead=read(0,msg,READ_BUFFER_SIZE);*/
+        //characterRead=read(0,msg,READ_BUFFER_SIZE);
         //msg[characterRead-1]='\0';
         if(msg[0]!=NULL){
             //write(1,msg,strlen(msg)+1);
             makeMD5(msg,hashMD5);
             write(1,hashMD5,strlen(hashMD5)+1);
         }
+    }*/
+    int j=0;
+    char txt[READ_BUFFER_SIZE];
+    while(1){
+        characterRead=read(0,msg,READ_BUFFER_SIZE);
+        for(int i=0;i<characterRead;i++){
+            if(msg[i]!='\n'){
+                txt[j]=msg[i];
+                j++;
+            }
+            else{
+                txt[j]=0;
+                makeMD5(txt,hashMD5);
+                write(1,hashMD5,strlen(hashMD5)+1);
+                j=0;
+            }
+        }
     }
-    
     
 
 }

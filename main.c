@@ -32,13 +32,14 @@ void sendFile(char * archivo,int indice,int * filesInSlave,int *iArgs,int fd[][2
 void sendFile(char * archivo,int indice,int * filesInSlave,int *iArgs,int fd[][2]){
     //printf("File enviado %s\n",archivo);    // BORRAR                 
     write(fd[indice][1],archivo,strlen(archivo)+1);
+    write(fd[indice][1],"\n",1);
     filesInSlave[indice]++;
     (*iArgs)++;
 }
 
 int main(int argc, char *argv[]) {
     
-
+    printf("HOLA\n");
     if (argc < 2) {
         printf("Ingrese un argumento\n");
         return 1;
@@ -132,11 +133,7 @@ int main(int argc, char *argv[]) {
                     k=INITIALARGS; // para salir del for interno
                 }else{
                     sendFile(argv[iArgs],i,filesInSlave,&iArgs,pipesToSlave);
-                    /*
-                    write(pipesToSlave[i][1],argv[iArgs],strlen(argv[iArgs])+1);
-                    filesInSlave[i]++;
-                    iArgs++;
-                    */
+
                 }
             }
         }
@@ -240,45 +237,6 @@ int main(int argc, char *argv[]) {
     } 
 
 
-   
-
-
-
-/*
-    for (int i = 0; i < slaves; i++) {
-        pid_t pid = fork();
-        if (pid == -1) {
-            perror("Error al crear el proceso");
-            exit(1);
-        } else if (pid == 0) {
-            // Código del proceso hijo
-            if (i > 0) {
-                // Redirigir la entrada estándar del proceso hijo desde el pipe anterior
-                close(pipes[i - 1][1]);
-                dup2(pipes[i - 1][0], STDIN_FILENO);
-                close(pipes[i - 1][0]);
-            }
-
-            if (i < slaves - 1) {
-                // Redirigir la salida estándar del proceso hijo al pipe
-                close(pipes[i][0]);
-                dup2(pipes[i][1], STDOUT_FILENO);
-                close(pipes[i][1]);
-            }
-
-            // Ejecutar un programa usando execve
-            char *argv[] = {"./child","./child", NULL}; // EL SEGUNDO PARAMETRO ES EL ARCHIVOO
-            execve("./child", argv, NULL);
-            perror("execve"); // Esto solo se ejecuta si execve falla
-            exit(1);
-        } else {
-            slaves[i] = pid;
-        }
-    }
-
-    //printFiles(argv[1],0);
-*/
-
     // ESPERA A QUE TERMINEN TODOS LOS PROCESOS HIJOS
     for (int i = 0; i < cantSlaves; i++) {
         printf("Esperando que terminen los pibes\n");
@@ -292,51 +250,3 @@ int main(int argc, char *argv[]) {
 
 }
 
-/*
-void printFiles(char* path, int tabs){
-    struct stat stat1;
-    struct dirent* dirent1;
-
-    if(tabs>=2)
-        return;
-
-    if (stat(path, &stat1)==-1)
-        return;
-
-    if ((stat1.st_mode & S_IFMT)==S_IFDIR){
-        DIR* aux= opendir(path);
-        while((dirent1=readdir(aux))!=NULL){
-            if ((dirent1)->d_name[0]!='.'){
-                char buff[256];
-                sprintf(buff,"%s/%s",path,dirent1->d_name);
-                printFiles(buff, tabs+1);   // reutilizamos el codigo hecho en el ejer 1 de l guia 0
-            }
-        }
-        //chdir("../");
-        closedir(aux);
-    }else     {
-        //printf("%s\n",path);
-        callSlave(path);
-        return;
-    }
-}
-*/
-
-/*void callSlave (char * archivo){
-    pid_t child_pid;
-    child_pid = fork();
-
-    if(child_pid == -1){
-        perror("fork");
-        exit (1);
-    }else if (child_pid ==0){
-        char * args[]={"./child",archivo,NULL}; // siempre al final de estos arrays tiene que haber un null
-        execve (args[0],args,NULL); // siempre al final de estos arrays tiene que haber un null
-        perror("execve");
-        exit(1);
-    }
-}
-*/
-
-
-//void forkAndExecuteSlave (pid_t *slave){}
