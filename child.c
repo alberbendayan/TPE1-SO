@@ -21,15 +21,27 @@ int main(int argc, char *argv[]) {
         makeMD5(argv[i],hashMD5);
         write(1,hashMD5,strlen(hashMD5)+1);
     }*/
-
-
-      
-
-    while(fgets(msg,sizeof(msg),stdin) != NULL){
+    /*while(1){
+        characterRead=read(0,msg,READ_BUFFER_SIZE);
+        msg[characterRead-1]='\0';
+        if(characterRead>0){
+            //write(1,msg,strlen(msg)+1);
+            makeMD5(msg,hashMD5);
+            write(1,hashMD5,strlen(hashMD5)+1);
+        }
+    }*/
         
-        /*characterRead=read(0,msg,READ_BUFFER_SIZE);
-        msg[characterRead-1]='\0';*/
+
+    
+
+    //while(fgets(msg,sizeof(msg),stdin) != NULL){
+        
+    while(characterRead=read(0,msg,READ_BUFFER_SIZE)>0){
+        
+        /*characterRead=read(0,msg,READ_BUFFER_SIZE);*/
+        //msg[characterRead-1]='\0';
         if(msg[0]!=NULL){
+            //write(1,msg,strlen(msg)+1);
             makeMD5(msg,hashMD5);
             write(1,hashMD5,strlen(hashMD5)+1);
         }
@@ -70,9 +82,8 @@ void makeMD5 (char *argv,char* hash){
     }
     pclose(pipeMD5);
 
-    snprintf(hash,MAX_LONG_RET,"PID: %d - HASH: %s - FILE: %s",pid,result,filename);
+    snprintf(hash,MAX_LONG_RET,"PID: %d - HASH: %s - FILE: %s\n",pid,result,filename);
 
-    printf("\n");
     return;
 }
 

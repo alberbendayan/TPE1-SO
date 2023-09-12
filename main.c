@@ -14,7 +14,7 @@
 
 //#define SLAVES 2
 #define BUFFERSIZE 512
-#define INITIALARGS 1
+#define INITIALARGS 2
 
 #define SHM_SIZE 1024  // Tamaño de la memoria compartida
 #define SEM_NAME "/my_semaphore"  // Nombre del semáforo
@@ -30,7 +30,7 @@ void printFiles(char* path,int tabs);
 void sendFile(char * archivo,int indice,int * filesInSlave,int *iArgs,int fd[][2]);
 
 void sendFile(char * archivo,int indice,int * filesInSlave,int *iArgs,int fd[][2]){
-    printf("File enviado %s\n",archivo);    // BORRAR                 
+    //printf("File enviado %s\n",archivo);    // BORRAR                 
     write(fd[indice][1],archivo,strlen(archivo)+1);
     filesInSlave[indice]++;
     (*iArgs)++;
@@ -168,7 +168,7 @@ int main(int argc, char *argv[]) {
             printf("Proceso hijo terminado con estado %d.\n", WEXITSTATUS(status));
         }
     }
-
+/*
     int shm_fd;
     void *shm_ptr;
     sem_t *sem;
@@ -189,7 +189,7 @@ int main(int argc, char *argv[]) {
 
     // Configurar el tamaño de la memoria compartida
     ftruncate(shm_fd, SHM_SIZE);
-
+*/
     
     while(1){
          
@@ -212,6 +212,7 @@ int main(int argc, char *argv[]) {
                 ssize_t bytes_read = read(pipesFromSlave[i][0], buffer, sizeof(buffer));
                 if (bytes_read > 0) {
                     // Aca hay q hacer el semaforo para escribir en la view
+                    //printf("%s\n",buffer);
                     write(1,buffer,bytes_read);
                     write(1,"\n",1);
 
