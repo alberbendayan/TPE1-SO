@@ -221,7 +221,13 @@ int main(int argc, char *argv[]) {
                         if(iArgs<argc){
                             sendFile(argv[iArgs],i,filesInSlave,&iArgs,pipesToSlave);
                         }else{
-                            //TODOS LOS ARCHIVOS FUERON ENVIADOS 
+                          // Como no hay mas archivos mato al slave q acaba de entregarme
+                            /*char txtKill[100];
+                            snprintf(txtKill,100,"kill %d",slaves[i]);
+                            system(txtKill);*/
+
+                            close(pipesToSlave[i][0]);
+                            close(pipesToSlave[i][1]);
                         }
                     }
 

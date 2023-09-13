@@ -48,8 +48,9 @@ int main(int argc, char *argv[]) {
     }*/
     int j=0;
     char txt[READ_BUFFER_SIZE];
-    while(1){
-        characterRead=read(0,msg,READ_BUFFER_SIZE);
+    /*while(1){
+        characterRead=read(0,msg,READ_BUFFER_SIZE);*/
+    while((characterRead=read(0,msg,READ_BUFFER_SIZE))){
         for(int i=0;i<characterRead;i++){
             if(msg[i]!='\n'){
                 txt[j]=msg[i];
