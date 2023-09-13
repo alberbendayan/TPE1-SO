@@ -8,14 +8,29 @@
 #include <fcntl.h>
 #include <semaphore.h>
 
+#include "shared_memory.h"
+
 #define SHM_SIZE 1024  // Tamaño de la memoria compartida
 #define SEM_NAME "/my_semaphore"  // Nombre del semáforo
 
 int main() {
-
+    char * block ;
     printf("Estoy en la view\n");
+    while (1)
+    {
+     
+        block= attach_memory_block(FILENAME, BLOCK_SIZE);
+        if(block == NULL){
+            printf("ERROR: no pudimos obtener block\n");
+        }
+
+        printf("Reading %s \n",block);
+
+        detach_memory_block(block);
+    
+    }
     return 1;
-    int shm_fd;
+    /*int shm_fd;
     void *shm_ptr;
     sem_t *sem;
 
@@ -47,6 +62,6 @@ int main() {
         printf("Saliendo desde la view: %s\n", (char *)shm_ptr);
         // Liberar el semáforo
         sem_post(sem);
-    }
+    }*/
     
 }

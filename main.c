@@ -10,6 +10,7 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <semaphore.h>
+#include "shared_memory.h"
 
 
 //#define SLAVES 2
@@ -209,11 +210,22 @@ int main(int argc, char *argv[]) {
                 ssize_t bytes_read = read(pipesFromSlave[i][0], buffer, sizeof(buffer));
                 if (bytes_read > 0) {
                     // Aca hay q hacer el semaforo para escribir en la view
+                    
+                    
                     //printf("%s\n",buffer);
                     write(1,buffer,bytes_read);
-                    write(1,"\n",1);
+                    //write(1,"\n",1);
+                    
+                    char *block = attach_memory_block(FILENAME, BLOCK_SIZE);
 
-                    //strcpy((char *)shm_ptr, buffer);
+                    if(block == NULL){
+                        printf("ERROR: no pudimos obtener block\n");
+                        //return -1;
+                    }
+
+                    //strncpy(block,buffer,bytes_read);
+
+                    detach_memory_block(block);
 
                     filesInSlave[i]--;
 
@@ -221,7 +233,7 @@ int main(int argc, char *argv[]) {
                         if(iArgs<argc){
                             sendFile(argv[iArgs],i,filesInSlave,&iArgs,pipesToSlave);
                         }else{
-                          // Como no hay mas archivos mato al slave q acaba de entregarme
+                            // Como no hay mas archivos mato al slave q acaba de entregarme
                             /*char txtKill[100];
                             snprintf(txtKill,100,"kill %d",slaves[i]);
                             system(txtKill);*/
@@ -230,7 +242,14 @@ int main(int argc, char *argv[]) {
                             close(pipesToSlave[i][1]);
                         }
                     }
-
+                    int j=0;
+                    while (filesInSlave[j]==0) // checkeo q no haya archivos pendientes
+                    {
+                        j++;
+                    }
+                    if(j==cantSlaves){
+                        exit(1);
+                    }
                     for(int h=0;h<bytes_read;h++){
                         buffer[h]=0;
                     }
@@ -241,7 +260,7 @@ int main(int argc, char *argv[]) {
         }
         
     } 
-
+/*
 
     // ESPERA A QUE TERMINEN TODOS LOS PROCESOS HIJOS
     for (int i = 0; i < cantSlaves; i++) {
@@ -253,6 +272,7 @@ int main(int argc, char *argv[]) {
         }
     }
     printf("Todos los procesos hijos han terminado. Programa principal finalizado.\n");
+    */
 
 }
 
