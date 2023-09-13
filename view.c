@@ -15,6 +15,11 @@
 
 int main()
 {
+    char msg[1024];
+    while (read(0, msg, strlen(msg)+1));
+
+    printf("%s\n",msg);
+
     printf("Estoy en la view\n");
     int counter=0;
     
@@ -22,7 +27,7 @@ int main()
     {
         sleep(2);
         // up
-        char *block = attach_memory_block(FILENAME, BLOCK_SIZE);
+        char *block = attach_memory_block(msg, BLOCK_SIZE);
         
         if (block == NULL)
         {

@@ -3,8 +3,7 @@
 
 #include <stdbool.h>
 
-#define BLOCK_SIZE 4096
-#define FILENAME "result.txt"
+#define BLOCK_SIZE 65536
 
 char *attach_memory_block(char *filename, int size);
 

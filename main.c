@@ -17,6 +17,8 @@
 #define BUFFERSIZE 512
 #define INITIALARGS 2
 
+#define SHAREDMEMORY "myshm"
+
 #define SHM_SIZE 1024            // Tamaño de la memoria compartida
 #define SEM_NAME "/my_semaphore" // Nombre del semáforo
 
@@ -38,7 +40,7 @@ void sendFile(char *archivo, int indice, int *filesInSlave, int *iArgs, int fd[]
 
 int main(int argc, char *argv[])
 {
-
+    char pathBuffer[512];
     printf("HOLA\n");
     if (argc < 2)
     {
@@ -172,9 +174,7 @@ int main(int argc, char *argv[])
     if (view == 0)
     {
         sleep(2);
-        char *argv2[] = {"./view", NULL}; // le puse argv1 para q sea diferente al argv
-        execve("./view", argv2, NULL);
-        perror("execve"); // Esto solo se ejecuta si execve falla
+        printf(SHAREDMEMORY);
         exit(1);
     }
 
@@ -231,15 +231,33 @@ int main(int argc, char *argv[])
                     //printf("%s\n",buffer);
                     write(1,buffer,bytes_read);
                     //write(1,"\n",1);
-                    
-                    char *block = attach_memory_block(FILENAME, BLOCK_SIZE);
 
+                    /*FILE *archivo;
+    
+                    archivo = fopen("shm.txt", "w");
+
+                    if (archivo == NULL) {
+                        printf("No se pudo abrir el archivo.\n");
+                        return 1; // Salir del programa con un código de error
+                    }
+
+                    fprintf(archivo, "Este es un texto que se escribirá en el archivo.\n");
+                    
+                    //fclose(archivo);
+
+                    printf("Archivo creado y escrito con éxito.\n");
+
+                    return 0;
+                    */
+                    
+                    char *block = attach_memory_block(SHAREDMEMORY, BLOCK_SIZE);
+                    //sleep(5);
                     if(block == NULL){
                         printf("ERROR: no pudimos obtener block\n");
                         //return -1;
                     }
 
-                    strncpy(block+counter,buffer,bytes_read);
+                    strncpy(block,buffer,bytes_read);
                     counter+=bytes_read;
 
                     detach_memory_block(block);
