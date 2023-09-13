@@ -7,6 +7,7 @@
 #include "shared_memory.h"
 
 #define IPC_RESULT_ERROR (-1)
+//#define KEY 7777
 
 static int get_shared_block(char *filename, int size)
 {
@@ -15,8 +16,7 @@ static int get_shared_block(char *filename, int size)
     // La key esta linkeada al nombre asi otros programas
     // pueden acceder tmb
 
-    key = ftok(filename, 0);
-
+    key = ftok(filename, 0);    
     if (key == IPC_RESULT_ERROR)
     {
         return IPC_RESULT_ERROR;
@@ -29,13 +29,13 @@ static int get_shared_block(char *filename, int size)
 char *attach_memory_block(char *filename, int size)
 {
     int shared_block_id = get_shared_block(filename, size);
-
+    char *result;
+    
     if (shared_block_id == IPC_RESULT_ERROR)
     {
         return NULL;
     }
 
-    char *result;
     result = shmat(shared_block_id, NULL, 0);
     if (result == (char *)IPC_RESULT_ERROR)
     {
@@ -56,7 +56,7 @@ bool destroy_memory_block(char *filename)
 
     if (shared_block_id == IPC_RESULT_ERROR)
     {
-        return NULL;
+        return false;
     }
 
     return (shmctl(shared_block_id, IPC_RMID, NULL) != IPC_RESULT_ERROR);

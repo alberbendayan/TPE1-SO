@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -228,7 +229,7 @@ int main(int argc, char *argv[])
                     // Aca hay q hacer el semaforo para escribir en la view
 
                     // printf("%s\n",buffer);
-                    write(1, buffer, bytes_read);
+                    //write(1, buffer, bytes_read);
                     // write(1,"\n",1);
 
                     char *block = attach_memory_block(FILENAME, BLOCK_SIZE);
@@ -239,11 +240,12 @@ int main(int argc, char *argv[])
                         // return -1;
                     }
 
-                    strncpy(block, buffer, bytes_read);
+                    //strncpy(block, buffer, BLOCK_SIZE);
+                    strncpy(block, "Hola", 5);
 
                     detach_memory_block(block);
 
-                    destroy_memory_block(FILENAME);
+                   // destroy_memory_block(FILENAME);
 
                     filesInSlave[i]--;
 

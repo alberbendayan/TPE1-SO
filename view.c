@@ -15,19 +15,21 @@
 
 int main()
 {
-    char *block;
     printf("Estoy en la view\n");
-
-    block = attach_memory_block(FILENAME, BLOCK_SIZE);
+    // up
+    char *block = attach_memory_block(FILENAME, BLOCK_SIZE);
+    
     if (block == NULL)
     {
         printf("ERROR: no pudimos obtener block\n");
     }
     printf("Reading %s \n", block);
-    detach_memory_block(block);
-    // destroy_memory_block(FILENAME);
 
+    detach_memory_block(block);
+    // down
     return 0;
+
+
     /*int shm_fd;
     void *shm_ptr;
     sem_t *sem;
