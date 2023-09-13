@@ -201,6 +201,8 @@ int main(int argc, char *argv[])
         ftruncate(shm_fd, SHM_SIZE);
     */
 
+    int counter=0;
+
     while (1)
     {
 
@@ -226,27 +228,21 @@ int main(int argc, char *argv[])
                 ssize_t bytes_read = read(pipesFromSlave[i][0], buffer, sizeof(buffer));
                 if (bytes_read > 0)
                 {
-                    // Aca hay q hacer el semaforo para escribir en la view
-
-                    // printf("%s\n",buffer);
-                    //write(1, buffer, bytes_read);
-                    // write(1,"\n",1);
-
+                    //printf("%s\n",buffer);
+                    write(1,buffer,bytes_read);
+                    //write(1,"\n",1);
+                    
                     char *block = attach_memory_block(FILENAME, BLOCK_SIZE);
 
-                    if (block == NULL)
-                    {
+                    if(block == NULL){
                         printf("ERROR: no pudimos obtener block\n");
-                        // return -1;
+                        //return -1;
                     }
 
-                    //strncpy(block, buffer, BLOCK_SIZE);
-                    strncpy(block, "Hola", 5);
+                    strncpy(block+counter,buffer,bytes_read);
+                    counter+=bytes_read;
 
                     detach_memory_block(block);
-
-                   // destroy_memory_block(FILENAME);
-
                     filesInSlave[i]--;
 
                     if (filesInSlave[i] == 0)

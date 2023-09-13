@@ -1,4 +1,5 @@
 all: 
+	touch result.txt
 	gcc -c shared_memory.h
 	gcc -Wall -c child.c main.c view.c shared_memory.c
 	gcc main.o shared_memory.o -o prog 

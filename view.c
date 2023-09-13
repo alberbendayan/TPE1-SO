@@ -16,17 +16,26 @@
 int main()
 {
     printf("Estoy en la view\n");
-    // up
-    char *block = attach_memory_block(FILENAME, BLOCK_SIZE);
+    int counter=0;
     
-    if (block == NULL)
+    while (1)
     {
-        printf("ERROR: no pudimos obtener block\n");
+        sleep(2);
+        // up
+        char *block = attach_memory_block(FILENAME, BLOCK_SIZE);
+        
+        if (block == NULL)
+        {
+            printf("ERROR: no pudimos obtener block\n");
+        }
+        int j;
+        for(j=0;block[j];j++);
+        printf("Reading %s \n", block+counter);
+        counter+=j;
+        detach_memory_block(block);
+        // down
     }
-    printf("Reading %s \n", block);
 
-    detach_memory_block(block);
-    // down
     return 0;
 
 

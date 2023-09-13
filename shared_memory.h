@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #define BLOCK_SIZE 4096
-#define FILENAME "main.c"
+#define FILENAME "result.txt"
 
 char *attach_memory_block(char *filename, int size);
 
