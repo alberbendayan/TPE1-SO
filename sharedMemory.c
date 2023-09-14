@@ -15,21 +15,30 @@ struct SharedMemory {
 
 
 SharedMemoryPtr createSharedMemory(const char *name) {
+    
     int fd = shm_open(name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
     if (fd == -1) {
         perror("shm_open");
         return NULL;
     }
-    SharedMemoryPtr memory = (SharedMemoryPtr)mmap(NULL, sizeof(struct SharedMemory), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    // Establece el tamaño de la memoria compartida
+    if (ftruncate(fd, sizeof(struct SharedMemory)) == -1) {
+        perror("ftruncate");
+        close(fd);
+        return NULL;
+    }
+    SharedMemoryPtr memory = (SharedMemoryPtr) mmap(NULL, sizeof(struct SharedMemory), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    
     if (memory == MAP_FAILED) {
         perror("mmap");
         close(fd);
         return NULL;
     }
-
+    printf("%d\n",fd);
+    
     memory->fd = fd;
-    memory->writePos =0;
-    memset(memory->buffer, 0, BUFFERSIZE); // Inicializamos el arreglo a ceros
+    memory->writePos=0;
+    memset(memory->buffer, 0, sizeof(memory->buffer)); // Inicializamos el arreglo a ceros
 
     return memory;
 }
