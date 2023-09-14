@@ -34,12 +34,44 @@ SharedMemoryPtr createSharedMemory(const char *name) {
         close(fd);
         return NULL;
     }
-    printf("%d\n",fd);
-    
+
     memory->fd = fd;
     memory->writePos=0;
-    memset(memory->buffer, 0, sizeof(memory->buffer)); // Inicializamos el arreglo a ceros
+    //memset(memory->buffer, 0, sizeof(memory->buffer)); // Inicializamos el arreglo a ceros
 
+    return memory;
+}
+
+SharedMemoryPtr connectToSharedMemory(const char *name) {
+    int fd = shm_open(name, O_RDWR, S_IRUSR | S_IRGRP | S_IROTH);
+    if (fd == -1) {
+        perror("shm_open");
+        return NULL;
+    }
+    struct stat buffer_stat;
+    if (fstat(fd, &buffer_stat) == -1) {
+        perror("fstat");
+        close(fd);
+        return NULL;
+    }
+    
+    size_t size = buffer_stat.st_size;
+    
+    SharedMemoryPtr memory = (SharedMemoryPtr)mmap(NULL, size, PROT_READ, MAP_SHARED, fd, 0);
+    
+    if (memory == MAP_FAILED) {
+        perror("mmap");
+        close(fd);
+        return NULL;
+    }
+    
+    printf ("fd memory: %d\n",memory->fd);
+    printf ("fd var: %d\n",fd);
+
+    memory->fd = fd;
+    printf ("fd memory asignada: %d\n",memory->fd);
+    printf("Entre a conectar 7\n");
+    
     return memory;
 }
 
@@ -55,9 +87,11 @@ int writeInMemory(SharedMemoryPtr memory, char * msg, int size){
         perror("No hay espacio suficiente para escribir en el buffer\n");
         return -1;
     }else{
-        for(int i=0;i<size;i++, memory->writePos++){
-            memory->buffer[memory->writePos]=msg[i];
+        int i;
+        for(i=0;i<size-1;i++){
+            memory->buffer[memory->writePos + i]=msg[i];
         }
+        memory->writePos+=i;
         return 1;
     }
 

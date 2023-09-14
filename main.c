@@ -16,7 +16,7 @@
 
 #define INITIALARGS 2
 
-#define SHAREDMEMORY "myshm"
+#define SHAREDMEMORY "/my_shm"
 
 #define SHM_SIZE 1024            // Tamaño de la memoria compartida
 #define SEM_NAME "/my_semaphore" // Nombre del semáforo
@@ -40,7 +40,6 @@ void sendFile(char *archivo, int indice, int *filesInSlave, int *iArgs, int fd[]
 int main(int argc, char *argv[])
 {
     char pathBuffer[512];
-    printf("HOLA\n");
     if (argc < 2)
     {
         printf("Ingrese un argumento\n");
@@ -200,7 +199,6 @@ int main(int argc, char *argv[])
         ftruncate(shm_fd, SHM_SIZE);
     */
 
-    int counter=0;
     // creo el archivo .txt para el resultado
     FILE *archivo;
     archivo = fopen("result.txt", "w");
@@ -257,19 +255,17 @@ int main(int argc, char *argv[])
                 if (bytes_read > 0)
                 {
                     //printf("%s\n",buffer);
-                    write(1,buffer,bytes_read);
+                    //write(1,buffer,bytes_read);
                     //write(1,"\n",1);
 
                     fprintf(archivo, buffer);
 
-                    //writeInMemory(memory,buffer,bytes_read);
-                      
-                    
-                    // SEMAFOREADA Y SHM
-                    
-                    counter+=bytes_read;
 
-
+                    // up
+                    writeInMemory(memory,buffer,bytes_read);
+                    // down
+                    
+                    
 
                     filesInSlave[i]--;
 
@@ -313,8 +309,13 @@ int main(int argc, char *argv[])
                                     munmap(memory, sizeof(struct SharedMemory));
                                     close(memory->fd);
                                 }*/
-
-
+                                 
+                                // pruebita
+                                /*
+                                char msg[BUFFERSIZE];
+                                readMemory(memory,msg,0,BUFFERSIZE);
+                                //printf("Desde SHM:\n%s",msg);
+                                write (1,msg,1000);*/
                                 exit(1);
                             }
                         }

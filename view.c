@@ -21,15 +21,13 @@ int main()
     printf("Desde view: %s\n",msg);
 
 
-
-    printf("Estoy en la view\n");
-    int counter=0;
     
     SharedMemoryPtr memory = createSharedMemory(msg);
 
-    char buffer[10000];
-    int actualPos = readMemory(memory,buffer,0,10000);
-    printf("%s\n",buffer);
+    printf("Llegandooo \n");
+    char buffer[BUFFERSIZE];
+    int actualPos = readMemory(memory,buffer,0,BUFFERSIZE);
+    write(1,buffer,1000);
     
     while (1)
     {
