@@ -16,37 +16,9 @@ int main(int argc, char *argv[])
     char msg[READ_BUFFER_SIZE];
     int characterRead;
 
-<<<<<<< Updated upstream
-    /*for(int i=1;i<argc;i++){
-        makeMD5(argv[i],hashMD5);
-        write(1,hashMD5,strlen(hashMD5)+1);
-    }*/
-    /*while(1){
-        characterRead=read(0,msg,READ_BUFFER_SIZE);
-        msg[characterRead-1]='\0';
-        if(characterRead>0){
-            //write(1,msg,strlen(msg)+1);
-            makeMD5(msg,hashMD5);
-            write(1,hashMD5,strlen(hashMD5)+1);
-        }
-    }*/
-
-    // while(fgets(msg,sizeof(msg),stdin) != NULL){
-
-    /* while(characterRead=read(0,msg,READ_BUFFER_SIZE)>0){
-
-         //characterRead=read(0,msg,READ_BUFFER_SIZE);
-         //msg[characterRead-1]='\0';
-         if(msg[0]!=NULL){
-             //write(1,msg,strlen(msg)+1);
-             makeMD5(msg,hashMD5);
-             write(1,hashMD5,strlen(hashMD5)+1);
-         }
-     }*/
     int j = 0;
     char txt[READ_BUFFER_SIZE];
-    /*while(1){
-        characterRead=read(0,msg,READ_BUFFER_SIZE);*/
+    
     while ((characterRead = read(0, msg, READ_BUFFER_SIZE)))
     {
         for (int i = 0; i < characterRead; i++)
@@ -54,15 +26,6 @@ int main(int argc, char *argv[])
             if (msg[i] != '\n')
             {
                 txt[j] = msg[i];
-=======
-
-    int j=0;
-    char txt[READ_BUFFER_SIZE];
-    while((characterRead=read(0,msg,READ_BUFFER_SIZE))){
-        for(int i=0;i<characterRead;i++){
-            if(msg[i]!='\n'){
-                txt[j]=msg[i];
->>>>>>> Stashed changes
                 j++;
             }
             else
@@ -80,22 +43,9 @@ int main(int argc, char *argv[])
 void makeMD5(char *argv, char *hash)
 {
     const char *filename = argv;
-<<<<<<< Updated upstream
 
     pid_t pid = getpid();
 
-    // printf("***** %s\n",filename);
-    /*FILE *file = fopen(filename, "rb");
-
-    if (!file) {
-        printf("No se pudo abrir el archivo.\n");
-        return;
-    }*/
-
-=======
-    
-    pid_t pid = getpid();    
->>>>>>> Stashed changes
     char command[256]; // Suponemos que el comando no va a ser mas largo que 256 caracteres
     snprintf(command, sizeof(command), "md5sum ./%s", filename);
 

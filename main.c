@@ -11,14 +11,9 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <semaphore.h>
-#include "shared_memory.h"
+#include "sharedMemory.h"
 
-<<<<<<< Updated upstream
-// #define SLAVES 2
-=======
 
->>>>>>> Stashed changes
-#define BUFFERSIZE 512
 #define INITIALARGS 2
 
 #define SHAREDMEMORY "myshm"
@@ -206,6 +201,36 @@ int main(int argc, char *argv[])
     */
 
     int counter=0;
+    // creo el archivo .txt para el resultado
+    FILE *archivo;
+    archivo = fopen("result.txt", "w");
+    if (archivo == NULL) {
+        printf("No se pudo abrir el archivo.\n");
+        return 1; // Salir del programa con un código de error
+    }
+
+
+    /*// SHM BOKA
+
+    int fd = shm_open(SHAREDMEMORY, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+    if (fd == -1) {
+        perror("shm_open");
+        return NULL;
+    }
+
+    struct SharedMemory *memory = (struct SharedMemory *)mmap(NULL, sizeof(struct SharedMemory), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    if (memory == MAP_FAILED) {
+        perror("mmap");
+        close(fd);
+        return NULL;
+    }
+
+    memory->fd = fd;
+    memset(memory->buffer, 0, SHM_SIZE); // Inicializamos el arreglo a ceros
+*/
+    
+    SharedMemoryPtr memory = createSharedMemory(SHAREDMEMORY);
+
 
     while (1)
     {
@@ -226,7 +251,6 @@ int main(int argc, char *argv[])
 
             if (FD_ISSET(pipesFromSlave[i][0], &tmp_fds))
             {
-
                 // Leer datos del descriptor de archivo pipes[i][0] y procesarlos
                 char buffer[BUFFERSIZE];
                 ssize_t bytes_read = read(pipesFromSlave[i][0], buffer, sizeof(buffer));
@@ -236,38 +260,17 @@ int main(int argc, char *argv[])
                     write(1,buffer,bytes_read);
                     //write(1,"\n",1);
 
-                    /*FILE *archivo;
-    
-                    archivo = fopen("shm.txt", "w");
+                    fprintf(archivo, buffer);
 
-                    if (archivo == NULL) {
-                        printf("No se pudo abrir el archivo.\n");
-                        return 1; // Salir del programa con un código de error
-                    }
-
-                    fprintf(archivo, "Este es un texto que se escribirá en el archivo.\n");
+                    //writeInMemory(memory,buffer,bytes_read);
+                      
                     
-                    //fclose(archivo);
-
-                    printf("Archivo creado y escrito con éxito.\n");
-
-                    return 0;
-                    */
+                    // SEMAFOREADA Y SHM
                     
-                    char *block = attach_memory_block(SHAREDMEMORY, BLOCK_SIZE);
-                    //sleep(5);
-                    if(block == NULL){
-                        printf("ERROR: no pudimos obtener block\n");
-                        //return -1;
-                    }
-
-                    strncpy(block,buffer,bytes_read);
-<<<<<<< Updated upstream
                     counter+=bytes_read;
-=======
->>>>>>> Stashed changes
 
-                    detach_memory_block(block);
+
+
                     filesInSlave[i]--;
 
                     if (filesInSlave[i] == 0)
@@ -302,7 +305,16 @@ int main(int argc, char *argv[])
                                         perror("No se pudo cerrar el file descriptor de lecutra del hijo");
                                         return 1;
                                     }
-                                }
+                                } 
+                                // CIERRO EL ARCHIVO RESUL
+                                fclose(archivo);
+                                // DESTRUYO LA SHM 
+                                /*if (memory != NULL) {
+                                    munmap(memory, sizeof(struct SharedMemory));
+                                    close(memory->fd);
+                                }*/
+
+
                                 exit(1);
                             }
                         }

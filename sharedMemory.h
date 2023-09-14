@@ -3,13 +3,17 @@
 
 #include <stddef.h>
 
-#define BUFFERSIZE 4096
+#define BUFFERSIZE 65536
 
 struct SharedMemory;
 
-struct SharedMemory *createSharedMemory(const char *name, size_t size);
-void destroySharedMemory(struct SharedMemory *memory);
-char *getBuffer(struct SharedMemory *memory);
-size_t getSize(struct SharedMemory *memory);
+typedef struct SharedMemory * SharedMemoryPtr;
+
+SharedMemoryPtr createSharedMemory(const char *name);
+void destroySharedMemory(SharedMemoryPtr memory);
+int writeInMemory(SharedMemoryPtr memory, char * msg, int size);
+int readMemory (SharedMemoryPtr memory, char*msg,int inicialPosition,int bufferSize);
+//char *getBuffer(SharedMemoryPtr memory);
+size_t getSize(SharedMemoryPtr memory);
 
 #endif

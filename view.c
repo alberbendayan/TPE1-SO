@@ -7,8 +7,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <semaphore.h>
+#include "sharedMemory.h"
 
-#include "shared_memory.h"
 
 #define SHM_SIZE 1024            // Tamaño de la memoria compartida
 #define SEM_NAME "/my_semaphore" // Nombre del semáforo
@@ -18,40 +18,43 @@ int main()
     char msg[1024];
     while (read(0, msg, strlen(msg)+1));
 
-    printf("%s\n",msg);
+    printf("Desde view: %s\n",msg);
+
+
 
     printf("Estoy en la view\n");
     int counter=0;
     
+    SharedMemoryPtr memory = createSharedMemory(msg);
+
+    char buffer[10000];
+    int actualPos = readMemory(memory,buffer,0,10000);
+    printf("%s\n",buffer);
+    
     while (1)
     {
         sleep(2);
-<<<<<<< Updated upstream
         // up
-        char *block = attach_memory_block(msg, BLOCK_SIZE);
+        
+        /*char *block = attach_memory_block(msg, BLOCK_SIZE);
         
         if (block == NULL)
         {
-=======
-        block= attach_memory_block(FILENAME, BLOCK_SIZE);
-        if(block == NULL){
->>>>>>> Stashed changes
             printf("ERROR: no pudimos obtener block\n");
         }
         int j;
         for(j=0;block[j];j++);
         printf("Reading %s \n", block+counter);
         counter+=j;
-        detach_memory_block(block);
+        detach_memory_block(block);*/
+        
+
+
+
+        
         // down
     }
-<<<<<<< Updated upstream
-
-    return 0;
-
-=======
     return 1;
->>>>>>> Stashed changes
 
     /*int shm_fd;
     void *shm_ptr;
