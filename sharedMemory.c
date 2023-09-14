@@ -48,30 +48,21 @@ SharedMemoryPtr connectToSharedMemory(const char *name) {
         perror("shm_open");
         return NULL;
     }
-    struct stat buffer_stat;
-    if (fstat(fd, &buffer_stat) == -1) {
-        perror("fstat");
+    // Establece el tamaño de la memoria compartida
+    if (ftruncate(fd, sizeof(struct SharedMemory)) == -1) {
+        perror("ftruncate");
         close(fd);
         return NULL;
     }
-    
-    size_t size = buffer_stat.st_size;
-    
-    SharedMemoryPtr memory = (SharedMemoryPtr)mmap(NULL, size, PROT_READ, MAP_SHARED, fd, 0);
+    SharedMemoryPtr memory = (SharedMemoryPtr) mmap(NULL, sizeof(struct SharedMemory), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     
     if (memory == MAP_FAILED) {
         perror("mmap");
         close(fd);
         return NULL;
     }
-    
-    printf ("fd memory: %d\n",memory->fd);
-    printf ("fd var: %d\n",fd);
 
-    memory->fd = fd;
-    printf ("fd memory asignada: %d\n",memory->fd);
-    printf("Entre a conectar 7\n");
-    
+    memory->fd = fd;    
     return memory;
 }
 

@@ -22,15 +22,14 @@ int main()
 
 
     
-    SharedMemoryPtr memory = createSharedMemory(msg);
-
-    printf("Llegandooo \n");
+    SharedMemoryPtr memory = connectToSharedMemory(msg);
     char buffer[BUFFERSIZE];
     int actualPos = readMemory(memory,buffer,0,BUFFERSIZE);
     write(1,buffer,1000);
     
     while (1)
     {
+        printf("HOLA2\n");
         sleep(2);
         // up
         

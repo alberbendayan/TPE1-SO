@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     char pathBuffer[512];
     if (argc < 2)
     {
-        printf("Ingrese un argumento\n");
+        perror("Ingrese un argumento\n");
         return 1;
     }
 
@@ -172,7 +172,7 @@ int main(int argc, char *argv[])
     if (view == 0)
     {
         sleep(2);
-        printf(SHAREDMEMORY);
+        printf("%s",SHAREDMEMORY);
         exit(1);
     }
 
@@ -203,7 +203,8 @@ int main(int argc, char *argv[])
     FILE *archivo;
     archivo = fopen("result.txt", "w");
     if (archivo == NULL) {
-        printf("No se pudo abrir el archivo.\n");
+        perror("No se pudo abrir el archivo.\n");
+        
         return 1; // Salir del programa con un código de error
     }
 
