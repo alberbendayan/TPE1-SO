@@ -1,9 +1,13 @@
-#ifndef SHARED_MEMORY_H
-#define SHARED_MEMORY_H
+#ifndef SHAREDMEMORY_H
+#define SHAREDMEMORY_H
 
 #include <stdbool.h>
 
+<<<<<<< Updated upstream
 #define BLOCK_SIZE 65536
+=======
+#define BLOCK_SIZE 4096
+>>>>>>> Stashed changes
 
 char *attach_memory_block(char *filename, int size);
 

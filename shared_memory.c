@@ -54,8 +54,12 @@ bool destroy_memory_block(char *filename)
 {
     int shared_block_id = get_shared_block(filename, 0);
 
+<<<<<<< Updated upstream
     if (shared_block_id == IPC_RESULT_ERROR)
     {
+=======
+    if(shared_block_id == IPC_RESULT_ERROR){
+>>>>>>> Stashed changes
         return false;
     }
 

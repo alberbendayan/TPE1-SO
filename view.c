@@ -26,11 +26,16 @@ int main()
     while (1)
     {
         sleep(2);
+<<<<<<< Updated upstream
         // up
         char *block = attach_memory_block(msg, BLOCK_SIZE);
         
         if (block == NULL)
         {
+=======
+        block= attach_memory_block(FILENAME, BLOCK_SIZE);
+        if(block == NULL){
+>>>>>>> Stashed changes
             printf("ERROR: no pudimos obtener block\n");
         }
         int j;
@@ -40,9 +45,13 @@ int main()
         detach_memory_block(block);
         // down
     }
+<<<<<<< Updated upstream
 
     return 0;
 
+=======
+    return 1;
+>>>>>>> Stashed changes
 
     /*int shm_fd;
     void *shm_ptr;

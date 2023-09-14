@@ -16,6 +16,7 @@ int main(int argc, char *argv[])
     char msg[READ_BUFFER_SIZE];
     int characterRead;
 
+<<<<<<< Updated upstream
     /*for(int i=1;i<argc;i++){
         makeMD5(argv[i],hashMD5);
         write(1,hashMD5,strlen(hashMD5)+1);
@@ -53,6 +54,15 @@ int main(int argc, char *argv[])
             if (msg[i] != '\n')
             {
                 txt[j] = msg[i];
+=======
+
+    int j=0;
+    char txt[READ_BUFFER_SIZE];
+    while((characterRead=read(0,msg,READ_BUFFER_SIZE))){
+        for(int i=0;i<characterRead;i++){
+            if(msg[i]!='\n'){
+                txt[j]=msg[i];
+>>>>>>> Stashed changes
                 j++;
             }
             else
@@ -70,6 +80,7 @@ int main(int argc, char *argv[])
 void makeMD5(char *argv, char *hash)
 {
     const char *filename = argv;
+<<<<<<< Updated upstream
 
     pid_t pid = getpid();
 
@@ -81,6 +92,10 @@ void makeMD5(char *argv, char *hash)
         return;
     }*/
 
+=======
+    
+    pid_t pid = getpid();    
+>>>>>>> Stashed changes
     char command[256]; // Suponemos que el comando no va a ser mas largo que 256 caracteres
     snprintf(command, sizeof(command), "md5sum ./%s", filename);
 

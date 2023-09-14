@@ -13,7 +13,11 @@
 #include <semaphore.h>
 #include "shared_memory.h"
 
+<<<<<<< Updated upstream
 // #define SLAVES 2
+=======
+
+>>>>>>> Stashed changes
 #define BUFFERSIZE 512
 #define INITIALARGS 2
 
@@ -258,7 +262,10 @@ int main(int argc, char *argv[])
                     }
 
                     strncpy(block,buffer,bytes_read);
+<<<<<<< Updated upstream
                     counter+=bytes_read;
+=======
+>>>>>>> Stashed changes
 
                     detach_memory_block(block);
                     filesInSlave[i]--;
