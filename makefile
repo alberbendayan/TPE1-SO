@@ -5,4 +5,5 @@ all:
 	gcc child.o -o child
 	gcc view.o sharedMemory.o -o view
 	rm *.o
+	rm *.gch
 	

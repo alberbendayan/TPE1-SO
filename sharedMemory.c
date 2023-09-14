@@ -5,16 +5,23 @@
 #include <unistd.h>
 #include <string.h>
 #include "sharedMemory.h"
+#include <sys/mman.h>
+#include <sys/stat.h>        /* For mode constants */
+#include <fcntl.h>  
+
+
 
 struct SharedMemory {
     int fd;                  // Descriptor de archivo para la memoria compartida
     char buffer[BUFFERSIZE];  // Buffer compartido (arreglo fijo)
     int writePos;
+    char name[NAMESIZE];
 };
 
 
 
 SharedMemoryPtr createSharedMemory(const char *name) {
+    shm_unlink(name); // ELIMINO LA MEMORIA ANTERIOR SI ES Q EXISTE
     
     int fd = shm_open(name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
     if (fd == -1) {
@@ -28,7 +35,9 @@ SharedMemoryPtr createSharedMemory(const char *name) {
         return NULL;
     }
     SharedMemoryPtr memory = (SharedMemoryPtr) mmap(NULL, sizeof(struct SharedMemory), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-    
+    for(int i=0;name[i]!=0;i++)
+        memory->name[i]=name[i];
+
     if (memory == MAP_FAILED) {
         perror("mmap");
         close(fd);
@@ -70,10 +79,14 @@ void destroySharedMemory(SharedMemoryPtr memory) {
     if (memory != NULL) {
         munmap(memory, sizeof(struct SharedMemory));
         close(memory->fd);
+        shm_unlink(memory->name); // ELIMINO LA MEMORIA
+    
     }
 }
 
 int writeInMemory(SharedMemoryPtr memory, char * msg, int size){
+    // wait (profe)
+    // (manual no hace nada)
     if(memory->writePos + size>=BUFFERSIZE){
         perror("No hay espacio suficiente para escribir en el buffer\n");
         return -1;
@@ -82,13 +95,16 @@ int writeInMemory(SharedMemoryPtr memory, char * msg, int size){
         for(i=0;i<size-1;i++){
             memory->buffer[memory->writePos + i]=msg[i];
         }
+        // memcopy
         memory->writePos+=i;
         return 1;
     }
+    // post (profe / manual)
 
 }
 
 int readMemory (SharedMemoryPtr memory, char*msg,int inicialPosition,int bufferSize){
+    // wait (profe y manual)
     if(inicialPosition >=BUFFERSIZE || inicialPosition < 0){
         perror("Out of bounds\n");
         return -1;
@@ -99,6 +115,7 @@ int readMemory (SharedMemoryPtr memory, char*msg,int inicialPosition,int bufferS
         msg[i]=memory->buffer[inicialPosition];
     }
     return inicialPosition;
+    // post (solo profe)
 }
 
 // char *getBuffer(SharedMemoryPtr memory) {
@@ -111,3 +128,4 @@ int readMemory (SharedMemoryPtr memory, char*msg,int inicialPosition,int bufferS
 size_t getSize(SharedMemoryPtr memory) {
     return BUFFERSIZE;
 }
+

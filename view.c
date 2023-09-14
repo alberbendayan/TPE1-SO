@@ -16,7 +16,10 @@
 int main()
 {
     char msg[1024];
-    while (read(0, msg, strlen(msg)+1));
+    
+    //while (read(0, msg, 1024));
+
+    scanf("%s",msg);
 
     printf("Desde view: %s\n",msg);
 
@@ -24,12 +27,13 @@ int main()
     
     SharedMemoryPtr memory = connectToSharedMemory(msg);
     char buffer[BUFFERSIZE];
+    //up
     int actualPos = readMemory(memory,buffer,0,BUFFERSIZE);
+    //down
     write(1,buffer,1000);
     
     while (1)
     {
-        printf("HOLA2\n");
         sleep(2);
         // up
         

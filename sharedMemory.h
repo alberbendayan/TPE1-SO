@@ -4,6 +4,7 @@
 #include <stddef.h>
 
 #define BUFFERSIZE 65536
+#define NAMESIZE 128
 
 struct SharedMemory;
 

@@ -167,14 +167,16 @@ int main(int argc, char *argv[])
             max_fd = pipesFromSlave[i][0];
         }
     }
+    char nombre[50];
+    snprintf(nombre,"%s\n",SHAREDMEMORY);
+    puts(nombre);
+    // view = fork();
+    // if (view == 0)
+    // {
+    //     sleep(2);
 
-    view = fork();
-    if (view == 0)
-    {
-        sleep(2);
-        printf("%s",SHAREDMEMORY);
-        exit(1);
-    }
+    //     exit(1);
+    // }
 
     /*
         int shm_fd;
@@ -209,24 +211,6 @@ int main(int argc, char *argv[])
     }
 
 
-    /*// SHM BOKA
-
-    int fd = shm_open(SHAREDMEMORY, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
-    if (fd == -1) {
-        perror("shm_open");
-        return NULL;
-    }
-
-    struct SharedMemory *memory = (struct SharedMemory *)mmap(NULL, sizeof(struct SharedMemory), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-    if (memory == MAP_FAILED) {
-        perror("mmap");
-        close(fd);
-        return NULL;
-    }
-
-    memory->fd = fd;
-    memset(memory->buffer, 0, SHM_SIZE); // Inicializamos el arreglo a ceros
-*/
     
     SharedMemoryPtr memory = createSharedMemory(SHAREDMEMORY);
 
@@ -255,10 +239,8 @@ int main(int argc, char *argv[])
                 ssize_t bytes_read = read(pipesFromSlave[i][0], buffer, sizeof(buffer));
                 if (bytes_read > 0)
                 {
-                    //printf("%s\n",buffer);
                     //write(1,buffer,bytes_read);
-                    //write(1,"\n",1);
-
+                    
                     fprintf(archivo, buffer);
 
 
@@ -305,6 +287,7 @@ int main(int argc, char *argv[])
                                 } 
                                 // CIERRO EL ARCHIVO RESUL
                                 fclose(archivo);
+                                destroySharedMemory(memory);
                                 // DESTRUYO LA SHM 
                                 /*if (memory != NULL) {
                                     munmap(memory, sizeof(struct SharedMemory));
