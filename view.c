@@ -33,7 +33,7 @@ int main()
     {
         actualPos = readMemory(memory,buffer,actualPos,BUFFERSIZE);
         if(actualPos > posVieja){
-            write(1,buffer,1000);
+            write(1,buffer,strlen(buffer)+1);
             posVieja=actualPos;
         }
     }

@@ -125,7 +125,6 @@ int readMemory(SharedMemoryPtr memory, char *msg, int inicialPosition, int buffe
         perror("Out of bounds\n");
         return -1;
     }
-
     sem_wait(memory->sem);
     int i;
     for (i = 0; i < bufferSize && memory->buffer[inicialPosition]!=0 && inicialPosition <= memory->writePos; i++, inicialPosition++) {
