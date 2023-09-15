@@ -17,8 +17,7 @@ struct SharedMemory {
     char buffer[BUFFERSIZE];  // Buffer compartido (arreglo fijo)
     int writePos;
     char name[NAMESIZE];
-    sem_t *sem;
-    int semTrucho;
+    sem_t * sem;
 };
 
 
@@ -46,12 +45,13 @@ SharedMemoryPtr createSharedMemory(const char *name) {
         close(fd);
         return NULL;
     }
-    memory->semTrucho=0;
     // CREO EL SEMAFORO
-    /*memory-> sem = sem_open("/sem", O_CREAT, 0666, 0); // Crear el semáforo
+    
+    memory-> sem = sem_open("/sem", O_CREAT, 0666, 0); // Crear el semáforo
+    
     if(memory->sem == SEM_FAILED){
         perror("Sem failed");
-    }*/
+    }
     
     memory->fd = fd;
     memory->writePos=0;
@@ -88,14 +88,13 @@ void destroySharedMemory(SharedMemoryPtr memory) {
     if (memory != NULL) {
         munmap(memory, sizeof(struct SharedMemory));
         close(memory->fd);
+        sem_close(memory->sem);
         shm_unlink(memory->name); // ELIMINO LA MEMORIA
-    
+        
     }
 }
 
 int writeInMemory(SharedMemoryPtr memory, char * msg, int size){
-    // wait (profe)
-    // (manual no hace nada)
     if(memory->writePos + size>=BUFFERSIZE){
         perror("No hay espacio suficiente para escribir en el buffer\n");
         return -1;
@@ -104,14 +103,11 @@ int writeInMemory(SharedMemoryPtr memory, char * msg, int size){
         for(i=0;i<size-1;i++){
             memory->buffer[memory->writePos + i]=msg[i];
         }
-        // memcopy
         memory->writePos+=i;
-        memory->semTrucho=1;
-        //sem_post(memory->sem);
+        sem_post(memory->sem);
         return 1;
     }
 
-    // post (profe / manual)
 
 }
 
@@ -120,8 +116,9 @@ int readMemory (SharedMemoryPtr memory, char*msg,int inicialPosition,int bufferS
         perror("Out of bounds\n");
         return -1;
     }
-    //sem_wait(memory->sem);
-    memory->semTrucho=0;
+
+    sem_wait(memory->sem);
+
     int i;
     for (i = 0; i < bufferSize && inicialPosition + i<= memory->writePos; i++, inicialPosition++)
     {

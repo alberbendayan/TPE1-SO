@@ -11,7 +11,6 @@
 
 
 #define SHM_SIZE 1024            // Tamaño de la memoria compartida
-#define SEM_NAME "/my_semaphore" // Nombre del semáforo
 
 int main()
 {
