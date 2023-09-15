@@ -11,7 +11,6 @@
 
 
 
-#define SHM_SIZE 1024            // Tamaño de la memoria compartida
 
 int main()
 {
@@ -41,44 +40,4 @@ int main()
             }
         }
     }
-
-    /*while (1)
-    {
-        sleep(2);
-    }
-    return 1;*/
-
-    /*int shm_fd;
-    void *shm_ptr;
-    sem_t *sem;
-
-    // Abrir el semáforo existente
-    sem = sem_open(SEM_NAME, 0);
-    if (sem == SEM_FAILED) {
-        perror("sem_open");
-        exit(1);
-    }
-
-    // Abrir la memoria compartida existente
-    shm_fd = shm_open("/my_shm", O_RDONLY, 0666);
-    if (shm_fd == -1) {
-        perror("shm_open");
-        exit(1);
-    }
-
-    // Mapear la memoria compartida en el espacio de direcciones del proceso
-    shm_ptr = mmap(0, SHM_SIZE, PROT_READ, MAP_SHARED, shm_fd, 0);
-    if (shm_ptr == MAP_FAILED) {
-        perror("mmap");
-        exit(1);
-    }
-
-    while (1)
-    {
-        sem_wait(sem);
-        // Leer desde la memoria compartida
-        printf("Saliendo desde la view: %s\n", (char *)shm_ptr);
-        // Liberar el semáforo
-        sem_post(sem);
-    }*/
 }

@@ -163,16 +163,9 @@ int main(int argc, char *argv[])
             max_fd = pipesFromSlave[i][0];
         }
     }
-    // char nombre[50];
-    // snprintf(nombre,"%s\n",SHAREDMEMORY);
-    puts(SHAREDMEMORY);
-    // view = fork();
-    // if (view == 0)
-    // {
-    //     sleep(2);
 
-    //     exit(1);
-    // }
+    puts(SHAREDMEMORY);
+
 
 
 
