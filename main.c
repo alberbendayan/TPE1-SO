@@ -166,7 +166,16 @@ int main(int argc, char *argv[])
     // char nombre[50];
     // snprintf(nombre,"%s\n",SHAREDMEMORY);
     puts(SHAREDMEMORY);
-    
+    // view = fork();
+    // if (view == 0)
+    // {
+    //     sleep(2);
+
+    //     exit(1);
+    // }
+
+
+
     // creo el archivo .txt para el resultado
     FILE *archivo;
     archivo = fopen("result.txt", "w");
@@ -207,7 +216,8 @@ int main(int argc, char *argv[])
                     fprintf(archivo, buffer);
 
                     writeInMemory(memory,buffer,bytes_read);
-                   
+                    
+
                     filesInSlave[i]--;
 
                     if (filesInSlave[i] == 0)
@@ -239,8 +249,8 @@ int main(int argc, char *argv[])
                                         perror("No se pudo cerrar el file descriptor de lecutra del hijo");
                                         return 1;
                                     }
-                                }
-                                finishedWriting (memory);
+                                } 
+                                finishedWriting(memory);
                                 // CIERRO EL ARCHIVO RESUL
                                 fclose(archivo);
                                 //destroySharedMemory(memory);                              
@@ -256,17 +266,5 @@ int main(int argc, char *argv[])
             }
         }
     }
-    /*
 
-        // ESPERA A QUE TERMINEN TODOS LOS PROCESOS HIJOS
-        for (int i = 0; i < cantSlaves; i++) {
-            printf("Esperando que terminen los pibes\n");
-            int status;
-            waitpid(-1, &status, 0); // Esperar a que cualquier proceso hijo termine
-            if (WIFEXITED(status)) {
-                printf("Proceso hijo terminado con estado %d.\n", WEXITSTATUS(status));
-            }
-        }
-        printf("Todos los procesos hijos han terminado. Programa principal finalizado.\n");
-        */
 }
