@@ -116,6 +116,7 @@ int writeInMemory(SharedMemoryPtr memory, char *msg, int size) {
         return -1;
     } else {
         //printf("msg: %s",msg);
+        // sleep(1);
         int i;
         for (i = 0; i < size  && msg[i] != 0; i++) {
             memory->buffer[memory->writePos + i] = msg[i];

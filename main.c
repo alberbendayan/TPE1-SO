@@ -22,8 +22,6 @@
 int cantSlaves, iArgs = 1;
 struct timeval timeout;
 
-void callSlave(char *archivo);
-void printFiles(char *path, int tabs);
 void sendFile(char *archivo, int indice, int *filesInSlave, int *iArgs, int fd[][2]);
 void sendFile(char *archivo, int indice, int *filesInSlave, int *iArgs, int fd[][2])
 {
