@@ -23,7 +23,7 @@ typedef struct SharedMemory* SharedMemoryPtr;
 SharedMemoryPtr createSharedMemory(const char *name) {
     shm_unlink(name);
 
-    sem_t *sem = sem_open(name, O_CREAT, S_IRUSR | S_IWUSR, 1);
+    sem_t *sem = sem_open(name, O_CREAT, S_IRUSR | S_IWUSR, 0);
     if (sem == SEM_FAILED) {
         perror("sem_open");
         return NULL;
@@ -128,7 +128,7 @@ int readMemory(SharedMemoryPtr memory, char *msg, int inicialPosition, int buffe
 
     sem_wait(memory->sem);
     int i;
-    for (i = 0; i < bufferSize && inicialPosition + i <= memory->writePos; i++, inicialPosition++) {
+    for (i = 0; i < bufferSize && memory->buffer[inicialPosition]!=0 && inicialPosition <= memory->writePos; i++, inicialPosition++) {
         msg[i] = memory->buffer[inicialPosition];
     }
 
