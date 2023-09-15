@@ -169,7 +169,6 @@ int main(int argc, char *argv[])
         timeout.tv_usec = 0;
 
         int ready = select(max_fd + 1, &tmp_fds, NULL, NULL, &timeout);
-
         if (ready == -1)
         {
             perror("Error en select");

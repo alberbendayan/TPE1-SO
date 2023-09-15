@@ -24,15 +24,14 @@ int main(int argc, char *argv[])
     SharedMemoryPtr memory = connectToSharedMemory(msg);
     char buffer[BUFFERSIZE];
     int actualPos =0, posVieja=0;
-
     while(1)
     {
         actualPos = readMemory(memory,buffer,actualPos,BUFFERSIZE);
         
         if(actualPos > posVieja){
             int longitud = strlen(buffer);
-            write(1,buffer,longitud+1);
-            
+            //write(1,buffer,longitud+1);
+            printf("%s",buffer);
             // limpio el buffer 
             for(int i=0;i<=longitud;i++){
                 buffer[i]=0;

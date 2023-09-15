@@ -142,8 +142,11 @@ int readMemory(SharedMemoryPtr memory, char *msg, int inicialPosition, int buffe
     for (i = 0; i < bufferSize &&  memory->buffer[inicialPosition + i]!='\n' && inicialPosition + i <= memory->writePos; i++) {
         msg[i] = memory->buffer[inicialPosition + i];
     }
-    msg[i]='\n';
-    return inicialPosition + i + 1;
+    if(memory->buffer[inicialPosition + i]=='\n'){
+        msg[i++]='\n';
+    }
+    msg[i]='\0';
+    return inicialPosition + i;
 }
 
 void destroySharedMemory(SharedMemoryPtr memory) {
