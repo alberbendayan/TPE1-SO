@@ -18,8 +18,6 @@
 
 #define SHAREDMEMORY "/my_shm"
 
-#define SHM_SIZE 1024            // Tamaño de la memoria compartida
-#define SEM_NAME "/my_semaphore" // Nombre del semáforo
 
 int cantSlaves, iArgs = 1;
 struct timeval timeout;
@@ -39,7 +37,6 @@ void sendFile(char *archivo, int indice, int *filesInSlave, int *iArgs, int fd[]
 
 int main(int argc, char *argv[])
 {
-    char pathBuffer[512];
     if (argc < 2)
     {
         perror("Ingrese un argumento\n");
@@ -56,7 +53,6 @@ int main(int argc, char *argv[])
     }
 
     pid_t slaves[cantSlaves];
-    pid_t view;
     // Arrays de pipes para la comunicación entre slaves y padre
     int pipesToSlave[cantSlaves][2];
     int pipesFromSlave[cantSlaves][2];
@@ -167,9 +163,9 @@ int main(int argc, char *argv[])
             max_fd = pipesFromSlave[i][0];
         }
     }
-    char nombre[50];
-    snprintf(nombre,"%s\n",SHAREDMEMORY);
-    puts(nombre);
+    // char nombre[50];
+    // snprintf(nombre,"%s\n",SHAREDMEMORY);
+    puts(SHAREDMEMORY);
     // view = fork();
     // if (view == 0)
     // {
@@ -211,13 +207,10 @@ int main(int argc, char *argv[])
     }
 
 
-    
     SharedMemoryPtr memory = createSharedMemory(SHAREDMEMORY);
-
-
+    
     while (1)
     {
-
         fd_set tmp_fds = read_fds;
         timeout.tv_sec = 4; // 3 segundos
         timeout.tv_usec = 0;
@@ -240,14 +233,10 @@ int main(int argc, char *argv[])
                 if (bytes_read > 0)
                 {
                     //write(1,buffer,bytes_read);
-                    
+
                     fprintf(archivo, buffer);
 
-
-                    // up
                     writeInMemory(memory,buffer,bytes_read);
-                    // down
-                    
                     
 
                     filesInSlave[i]--;
@@ -261,9 +250,6 @@ int main(int argc, char *argv[])
                         else
                         {
                             // Como no hay mas archivos mato al slave q acaba de entregarme
-                            /*char txtKill[100];
-                            snprintf(txtKill,100,"kill %d",slaves[i]);
-                            system(txtKill);*/
                             if (close(pipesToSlave[i][1]) == -1)
                             {
                                 perror("No se pudo cerrar el file descriptor de escritura al hijo");
@@ -287,19 +273,7 @@ int main(int argc, char *argv[])
                                 } 
                                 // CIERRO EL ARCHIVO RESUL
                                 fclose(archivo);
-                                destroySharedMemory(memory);
-                                // DESTRUYO LA SHM 
-                                /*if (memory != NULL) {
-                                    munmap(memory, sizeof(struct SharedMemory));
-                                    close(memory->fd);
-                                }*/
-                                 
-                                // pruebita
-                                /*
-                                char msg[BUFFERSIZE];
-                                readMemory(memory,msg,0,BUFFERSIZE);
-                                //printf("Desde SHM:\n%s",msg);
-                                write (1,msg,1000);*/
+                                //destroySharedMemory(memory);                              
                                 exit(1);
                             }
                         }

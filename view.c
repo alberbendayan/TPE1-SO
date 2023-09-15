@@ -15,9 +15,10 @@
 
 int main()
 {
+    sleep(2);
     char msg[1024];
     
-    //while (read(0, msg, 1024));
+    //read(0, msg, 1024);
 
     scanf("%s",msg);
 
@@ -27,35 +28,17 @@ int main()
     
     SharedMemoryPtr memory = connectToSharedMemory(msg);
     char buffer[BUFFERSIZE];
-    //up
+    
     int actualPos = readMemory(memory,buffer,0,BUFFERSIZE);
-    //down
+    
     write(1,buffer,1000);
     
-    while (1)
+
+    /*while (1)
     {
         sleep(2);
-        // up
-        
-        /*char *block = attach_memory_block(msg, BLOCK_SIZE);
-        
-        if (block == NULL)
-        {
-            printf("ERROR: no pudimos obtener block\n");
-        }
-        int j;
-        for(j=0;block[j];j++);
-        printf("Reading %s \n", block+counter);
-        counter+=j;
-        detach_memory_block(block);*/
-        
-
-
-
-        
-        // down
     }
-    return 1;
+    return 1;*/
 
     /*int shm_fd;
     void *shm_ptr;

@@ -8,6 +8,7 @@
 #include <sys/mman.h>
 #include <sys/stat.h>        /* For mode constants */
 #include <fcntl.h>  
+#include <semaphore.h>
 
 
 
@@ -16,6 +17,8 @@ struct SharedMemory {
     char buffer[BUFFERSIZE];  // Buffer compartido (arreglo fijo)
     int writePos;
     char name[NAMESIZE];
+    sem_t *sem;
+    int semTrucho;
 };
 
 
@@ -43,7 +46,13 @@ SharedMemoryPtr createSharedMemory(const char *name) {
         close(fd);
         return NULL;
     }
-
+    memory->semTrucho=0;
+    // CREO EL SEMAFORO
+    /*memory-> sem = sem_open("/sem", O_CREAT, 0666, 0); // Crear el semáforo
+    if(memory->sem == SEM_FAILED){
+        perror("Sem failed");
+    }*/
+    
     memory->fd = fd;
     memory->writePos=0;
     //memset(memory->buffer, 0, sizeof(memory->buffer)); // Inicializamos el arreglo a ceros
@@ -97,33 +106,30 @@ int writeInMemory(SharedMemoryPtr memory, char * msg, int size){
         }
         // memcopy
         memory->writePos+=i;
+        memory->semTrucho=1;
+        //sem_post(memory->sem);
         return 1;
     }
+
     // post (profe / manual)
 
 }
 
 int readMemory (SharedMemoryPtr memory, char*msg,int inicialPosition,int bufferSize){
-    // wait (profe y manual)
     if(inicialPosition >=BUFFERSIZE || inicialPosition < 0){
         perror("Out of bounds\n");
         return -1;
     }
+    //sem_wait(memory->sem);
+    memory->semTrucho=0;
     int i;
     for (i = 0; i < bufferSize && inicialPosition + i<= memory->writePos; i++, inicialPosition++)
     {
         msg[i]=memory->buffer[inicialPosition];
     }
     return inicialPosition;
-    // post (solo profe)
 }
 
-// char *getBuffer(SharedMemoryPtr memory) {
-//     if (memory != NULL) {
-//         return memory->buffer;
-//     }
-//     return NULL;
-// }
 
 size_t getSize(SharedMemoryPtr memory) {
     return BUFFERSIZE;

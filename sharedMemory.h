@@ -15,7 +15,6 @@ void destroySharedMemory(SharedMemoryPtr memory);
 int writeInMemory(SharedMemoryPtr memory, char * msg, int size);
 SharedMemoryPtr connectToSharedMemory(const char *name);
 int readMemory (SharedMemoryPtr memory, char*msg,int inicialPosition,int bufferSize);
-//char *getBuffer(SharedMemoryPtr memory);
 size_t getSize(SharedMemoryPtr memory);
 
 #endif
