@@ -100,9 +100,10 @@ int writeInMemory(SharedMemoryPtr memory, char * msg, int size){
         return -1;
     }else{
         int i;
-        for(i=0;i<size-1;i++){
+           memcpy(memory->buffer[memory->writePos],msg,size );
+       /* for(i=0;i<size-1;i++){
             memory->buffer[memory->writePos + i]=msg[i];
-        }
+        }*/
         memory->writePos+=i;
         sem_post(memory->sem);
         return 1;
