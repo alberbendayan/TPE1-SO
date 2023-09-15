@@ -24,7 +24,6 @@ typedef struct SharedMemory* SharedMemoryPtr;
 
 SharedMemoryPtr createSharedMemory(const char *name) {
     shm_unlink(name);
-
     sem_t *sem = sem_open(name, O_CREAT, S_IRUSR | S_IWUSR, 1);
     if (sem == SEM_FAILED) {
         perror("sem_open");
@@ -112,14 +111,11 @@ SharedMemoryPtr connectToSharedMemory(const char *name) {
 }
 
 int writeInMemory(SharedMemoryPtr memory, char *msg, int size) {
-    
-
     if (memory->writePos + size >= BUFFERSIZE) {
         perror("No hay espacio suficiente para escribir en el buffer\n");
         return -1;
     } else {
         int i;
-        //memcpy(memory->buffer[memory->writePos],msg,size );
         for (i = 0; i < size - 1 && msg[i] != 0; i++) {
             memory->buffer[memory->writePos + i] = msg[i];
         }
@@ -136,13 +132,11 @@ int readMemory(SharedMemoryPtr memory, char *msg, int inicialPosition, int buffe
         perror("Out of bounds\n");
         return -1;
     }
-
     sem_wait(memory->sem);
     int i;
     for (i = 0; i < bufferSize && inicialPosition + i <= memory->writePos; i++) {
         msg[i] = memory->buffer[inicialPosition + i];
     }
-
     return inicialPosition + i;
 }
 

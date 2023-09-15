@@ -16,15 +16,7 @@ int main()
 {
     sleep(2);
     char msg[1024];
-    
-    //read(0, msg, 1024);
-
     scanf("%s",msg);
-
-    printf("Desde view: %s\n",msg);
-
-
-    
     SharedMemoryPtr memory = connectToSharedMemory(msg);
     char buffer[BUFFERSIZE];
     int actualPos =0, posVieja=0;

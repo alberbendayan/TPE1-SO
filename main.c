@@ -25,10 +25,8 @@ struct timeval timeout;
 void callSlave(char *archivo);
 void printFiles(char *path, int tabs);
 void sendFile(char *archivo, int indice, int *filesInSlave, int *iArgs, int fd[][2]);
-
 void sendFile(char *archivo, int indice, int *filesInSlave, int *iArgs, int fd[][2])
 {
-    // printf("File enviado %s\n",archivo);    // BORRAR
     write(fd[indice][1], archivo, strlen(archivo) + 1);
     write(fd[indice][1], "\n", 1);
     filesInSlave[indice]++;
@@ -67,21 +65,16 @@ int main(int argc, char *argv[])
             perror("Error al crear el pipe");
             exit(1);
         }
-
         filesInSlave[i] = 0; // inicializo ambos contadores
-
         slaves[i] = fork();
         if (slaves[i] == -1)
         {
-
             perror("Error al crear el proceso");
             exit(1);
         }
-
         if (slaves[i] == 0)
         { // proceso hijo
             // cierro los estandar y los que no uso
-
             if (close(0) == -1)
             {
                 perror("No se pudo cerrar el file descriptor estandar de lectura");
@@ -95,9 +88,7 @@ int main(int argc, char *argv[])
             // reasigno los fd
             dup(pipesToSlave[i][0]);
             dup(pipesFromSlave[i][1]);
-
             // cierro los fd repetidos
-
             if (close(pipesToSlave[i][0]) == -1)
             {
                 perror("No se pudo cerrar el file descriptor al hijo de lectura");
@@ -108,10 +99,8 @@ int main(int argc, char *argv[])
                 perror("No se pudo cerrar el file descriptor desde el hijo de escritura");
                 return 1;
             }
-
             for (int j = 0; j <= i; j++)
             {
-
                 if (close(pipesToSlave[j][1]) == -1)
                 {
                     perror("No se pudo cerrar el file descriptor al hijo de escritura");
@@ -149,12 +138,10 @@ int main(int argc, char *argv[])
             }
         }
     }
-
     // Configurar los descriptores de archivo para select
     fd_set read_fds;
     FD_ZERO(&read_fds);
     int max_fd = -1;
-
     for (int i = 0; i < cantSlaves; i++)
     {
         FD_SET(pipesFromSlave[i][0], &read_fds);
@@ -163,12 +150,7 @@ int main(int argc, char *argv[])
             max_fd = pipesFromSlave[i][0];
         }
     }
-
     puts(SHAREDMEMORY);
-
-
-
-
     // creo el archivo .txt para el resultado
     FILE *archivo;
     archivo = fopen("result.txt", "w");
@@ -177,10 +159,7 @@ int main(int argc, char *argv[])
         
         return 1; // Salir del programa con un código de error
     }
-
-
     SharedMemoryPtr memory = createSharedMemory(SHAREDMEMORY);
-    
     while (1)
     {
         fd_set tmp_fds = read_fds;
@@ -196,7 +175,6 @@ int main(int argc, char *argv[])
         }
         for (int i = 0; i < cantSlaves; i++)
         {
-
             if (FD_ISSET(pipesFromSlave[i][0], &tmp_fds))
             {
                 // Leer datos del descriptor de archivo pipes[i][0] y procesarlos
@@ -204,15 +182,9 @@ int main(int argc, char *argv[])
                 ssize_t bytes_read = read(pipesFromSlave[i][0], buffer, sizeof(buffer));
                 if (bytes_read > 0)
                 {
-                    //write(1,buffer,bytes_read);
-
                     fprintf(archivo, buffer);
-
-                    writeInMemory(memory,buffer,bytes_read);
-                    
-
+                    writeInMemory(memory,buffer,bytes_read);  
                     filesInSlave[i]--;
-
                     if (filesInSlave[i] == 0)
                     {
                         if (iArgs < argc)
@@ -227,7 +199,6 @@ int main(int argc, char *argv[])
                                 perror("No se pudo cerrar el file descriptor de escritura al hijo");
                                 return 1;
                             }
-
                             int j = 0;
                             while (filesInSlave[j] == 0) // checkeo q no haya archivos pendientes
                             {
@@ -259,5 +230,4 @@ int main(int argc, char *argv[])
             }
         }
     }
-
 }
