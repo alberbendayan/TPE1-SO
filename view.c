@@ -11,6 +11,8 @@
 
 
 
+#define SHM_SIZE 1024            // Tamaño de la memoria compartida
+
 int main()
 {
     sleep(2);
@@ -20,23 +22,24 @@ int main()
 
     scanf("%s",msg);
 
+    printf("Desde view: %s\n",msg);
+
+
     
     SharedMemoryPtr memory = connectToSharedMemory(msg);
     char buffer[BUFFERSIZE];
-    
-    int actualPos = 0, posVieja =0;
+    int actualPos =0, posVieja=0;
 
-    while(1){
-
-        actualPos=readMemory(memory,buffer,actualPos,BUFFERSIZE);
-        if(actualPos>posVieja){
-            printf("%s\n",buffer);
+    while(1)
+    {
+        actualPos = readMemory(memory,buffer,actualPos,BUFFERSIZE);
+        if(actualPos > posVieja){
+            write(1,buffer,strlen(buffer)+1);
             posVieja=actualPos;
-            if(isFinished(memory))
+            if(isFinished(memory)){
                 exit(1);
+            }
         }
     }
-
-
 
 }
