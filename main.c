@@ -14,12 +14,12 @@
 #include "sharedMemory.h"
 
 
-#define INITIALARGS 2
+//#define INITIALARGS 2 // dsp hay q hacer una variable
 
 #define SHAREDMEMORY "/my_shm"
 
 
-int cantSlaves, iArgs = 1;
+int cantSlaves, iArgs = 1,initialArgs;
 struct timeval timeout;
 
 void sendFile(char *archivo, int indice, int *filesInSlave, int *iArgs, int fd[][2]);
@@ -47,6 +47,9 @@ int main(int argc, char *argv[])
         if (cantSlaves > 10)
             cantSlaves = 10;
 
+        initialArgs = argc / 15 + 1;
+        if(initialArgs<2)
+            initialArgs =2; // como minimo que pase 2 (xq sino seria todo igual)
     //}
 
     pid_t slaves[cantSlaves];
@@ -124,11 +127,11 @@ int main(int argc, char *argv[])
             close(pipesToSlave[i][0]);
             close(pipesFromSlave[i][1]);
 
-            for (int k = 0; k < INITIALARGS; k++)
+            for (int k = 0; k < initialArgs; k++)
             {    
                 if (iArgs >= argc)
                 {   
-                    k = INITIALARGS; 
+                    k = initialArgs; 
                 }
                 else
                 {
