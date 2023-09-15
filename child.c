@@ -18,8 +18,10 @@ int main(int argc, char *argv[])
 
     int j = 0;
     char txt[READ_BUFFER_SIZE];
-    
-    while ((characterRead = read(0, msg, READ_BUFFER_SIZE)))
+    while(fgets(msg,READ_BUFFER_SIZE,stdin)){
+    makeMD5(msg,hashMD5);
+    write(1,hashMD5,strlen(hashMD5)+1);
+    /*while ((characterRead = read(0, msg, READ_BUFFER_SIZE)))
     {
         for (int i = 0; i < characterRead; i++)
         {
@@ -35,7 +37,7 @@ int main(int argc, char *argv[])
                 write(1, hashMD5, strlen(hashMD5) + 1);
                 j = 0;
             }
-        }
+        }*/
     }
     exit(1);
 }
