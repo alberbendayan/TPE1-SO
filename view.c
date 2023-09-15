@@ -20,9 +20,6 @@ int main()
 
     scanf("%s",msg);
 
-    printf("Desde view: %s\n",msg);
-
-
     
     SharedMemoryPtr memory = connectToSharedMemory(msg);
     char buffer[BUFFERSIZE];
@@ -35,9 +32,11 @@ int main()
         if(actualPos>posVieja){
             printf("%s\n",buffer);
             posVieja=actualPos;
+            if(isFinished(memory))
+                exit(1);
         }
     }
-    
+
 
 
 }

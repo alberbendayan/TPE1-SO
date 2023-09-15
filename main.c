@@ -239,7 +239,8 @@ int main(int argc, char *argv[])
                                         perror("No se pudo cerrar el file descriptor de lecutra del hijo");
                                         return 1;
                                     }
-                                } 
+                                }
+                                finishedWriting (memory);
                                 // CIERRO EL ARCHIVO RESUL
                                 fclose(archivo);
                                 //destroySharedMemory(memory);                              
