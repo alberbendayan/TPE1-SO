@@ -41,14 +41,15 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    if (argc == 2)
-        cantSlaves = 1; // xq si hay un solo archivo, con un solo esclavo estamo
-    else
-    {
+    // if (argc == 2 || argc == 3)
+    //     cantSlaves = 1; // xq si hay un solo archivo o dos archivos, con un solo esclavo estamo
+    // else
+    // {
         cantSlaves = argc / 5 + 1;
         if (cantSlaves > 10)
             cantSlaves = 10;
-    }
+
+    //}
 
     pid_t slaves[cantSlaves];
     // Arrays de pipes para la comunicación entre slaves y padre
@@ -126,10 +127,10 @@ int main(int argc, char *argv[])
             close(pipesFromSlave[i][1]);
 
             for (int k = 0; k < INITIALARGS; k++)
-            {
+            {    
                 if (iArgs >= argc)
-                {                    // es muy improbable que se llegue a este caso
-                    k = INITIALARGS; // para salir del for interno
+                {   
+                    k = INITIALARGS; 
                 }
                 else
                 {
@@ -182,8 +183,8 @@ int main(int argc, char *argv[])
                 ssize_t bytes_read = read(pipesFromSlave[i][0], buffer, sizeof(buffer));
                 if (bytes_read > 0)
                 {
-                    fprintf(archivo, buffer);
                     writeInMemory(memory,buffer,bytes_read);  
+                    fprintf(archivo, buffer);
                     filesInSlave[i]--;
                     if (filesInSlave[i] == 0)
                     {
@@ -200,7 +201,7 @@ int main(int argc, char *argv[])
                                 return 1;
                             }
                             int j = 0;
-                            while (filesInSlave[j] == 0) // checkeo q no haya archivos pendientes
+                            while (filesInSlave[j] == 0 && j <cantSlaves) // checkeo q no haya archivos pendientes
                             {
                                 j++;
                             }
