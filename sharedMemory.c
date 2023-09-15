@@ -128,11 +128,11 @@ int readMemory(SharedMemoryPtr memory, char *msg, int inicialPosition, int buffe
 
     sem_wait(memory->sem);
     int i;
-    for (i = 0; i < bufferSize && inicialPosition + i <= memory->writePos; i++, inicialPosition++) {
-        msg[i] = memory->buffer[inicialPosition];
+    for (i = 0; i < bufferSize && inicialPosition + i <= memory->writePos; i++) {
+        msg[i] = memory->buffer[inicialPosition + i];
     }
 
-    return inicialPosition;
+    return inicialPosition + i;
 }
 
 void destroySharedMemory(SharedMemoryPtr memory) {
