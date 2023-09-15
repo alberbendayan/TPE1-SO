@@ -12,26 +12,39 @@
 
 
 
-int main()
+int main(int argc, char *argv[])
 {
-    sleep(2);
+    sleep(2);   
     char msg[1024];
-    scanf("%s",msg);
+    if(argc <2){
+        scanf("%s",msg);
+    }else{
+        char *aux=argv[1];
+        for(int i=0;aux[i]!=0 && i<1024;i++){
+            msg[i]=aux[i];
+        }
+    }
     SharedMemoryPtr memory = connectToSharedMemory(msg);
     char buffer[BUFFERSIZE];
-    int actualPos =0, posVieja=0,pruebita=0;
+    int actualPos =0, posVieja=0;
 
     while(1)
     {
         actualPos = readMemory(memory,buffer,actualPos,BUFFERSIZE);
+        
         if(actualPos > posVieja){
-            write(1,buffer,strlen(buffer)+1);
-            printf("Escribiendo %d\n",pruebita);
+            int longitud = strlen(buffer);
+            write(1,buffer,longitud+1);
+            
+            // limpio el buffer 
+            for(int i=0;i<=longitud;i++){
+                buffer[i]=0;
+            }
+            
             posVieja=actualPos;
-            if(isFinished(memory)){
+            if(isFinished(memory,actualPos)){
                 exit(1);
             }
         }
-        pruebita++;
     }
 }

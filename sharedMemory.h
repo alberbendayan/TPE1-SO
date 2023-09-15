@@ -17,7 +17,6 @@ int writeInMemory(SharedMemoryPtr memory, char * msg, int size);
 SharedMemoryPtr connectToSharedMemory(const char *name);
 int readMemory (SharedMemoryPtr memory, char*msg,int inicialPosition,int bufferSize);
 size_t getSize(SharedMemoryPtr memory);
+bool isFinished(SharedMemoryPtr memory,int readingPosition);
 void finishedWriting(SharedMemoryPtr memory);
-bool isFinished(SharedMemoryPtr memory);
-
 #endif

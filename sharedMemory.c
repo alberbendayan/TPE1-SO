@@ -71,8 +71,8 @@ void finishedWriting(SharedMemoryPtr memory){
     memory->finished=true;
 }
 
-bool isFinished(SharedMemoryPtr memory){
-    return memory->finished;
+bool isFinished(SharedMemoryPtr memory,int readingPosition){
+    return memory->finished  && readingPosition >= memory->writePos;
 }
 
 SharedMemoryPtr connectToSharedMemory(const char *name) {
@@ -115,8 +115,9 @@ int writeInMemory(SharedMemoryPtr memory, char *msg, int size) {
         perror("No hay espacio suficiente para escribir en el buffer\n");
         return -1;
     } else {
+        //printf("msg: %s",msg);
         int i;
-        for (i = 0; i < size - 1 && msg[i] != 0; i++) {
+        for (i = 0; i < size  && msg[i] != 0; i++) {
             memory->buffer[memory->writePos + i] = msg[i];
         }
         memory->writePos += i;
@@ -132,12 +133,15 @@ int readMemory(SharedMemoryPtr memory, char *msg, int inicialPosition, int buffe
         perror("Out of bounds\n");
         return -1;
     }
+
     sem_wait(memory->sem);
+
     int i;
-    for (i = 0; i < bufferSize && inicialPosition + i <= memory->writePos; i++) {
+    for (i = 0; i < bufferSize &&  memory->buffer[inicialPosition + i]!='\n' && inicialPosition + i <= memory->writePos; i++) {
         msg[i] = memory->buffer[inicialPosition + i];
     }
-    return inicialPosition + i;
+    msg[i]='\n';
+    return inicialPosition + i + 1;
 }
 
 void destroySharedMemory(SharedMemoryPtr memory) {
