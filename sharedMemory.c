@@ -109,10 +109,10 @@ int writeInMemory(SharedMemoryPtr memory, char *msg, int size) {
     } else {
         int i;
         //memcpy(memory->buffer[memory->writePos],msg,size );
-        for (i = 0; i < size - 1; i++) {
+        for (i = 0; i < size - 1 && msg[i] != 0; i++) {
             memory->buffer[memory->writePos + i] = msg[i];
         }
-        memory->writePos += size-1;
+        memory->writePos += i;
         sem_post(memory->sem);
         return 1;
     }
@@ -131,7 +131,6 @@ int readMemory(SharedMemoryPtr memory, char *msg, int inicialPosition, int buffe
         msg[i] = memory->buffer[inicialPosition];
     }
 
-    
     return inicialPosition;
 }
 

@@ -14,10 +14,10 @@ int main(int argc, char *argv[])
 
     char hashMD5[MAX_LONG_RET];
     char msg[READ_BUFFER_SIZE];
-    int characterRead;
+    //int characterRead;
 
-    int j = 0;
-    char txt[READ_BUFFER_SIZE];
+    //int j = 0;
+    //char txt[READ_BUFFER_SIZE];
     while(fgets(msg,READ_BUFFER_SIZE,stdin)){
     makeMD5(msg,hashMD5);
     write(1,hashMD5,strlen(hashMD5)+1);
