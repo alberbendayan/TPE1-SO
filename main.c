@@ -174,28 +174,7 @@ int main(int argc, char *argv[])
     //     exit(1);
     // }
 
-    /*
-        int shm_fd;
-        void *shm_ptr;
-        sem_t *sem;
 
-        // Crear o abrir el semáforo
-        sem = sem_open(SEM_NAME, O_CREAT, 0666, 1);
-        if (sem == SEM_FAILED) {
-            perror("sem_open");
-            exit(1);
-        }
-
-        // Crear o abrir la memoria compartida
-        shm_fd = shm_open("/my_shm", O_CREAT | O_RDWR, 0666);
-        if (shm_fd == -1) {
-            perror("shm_open");
-            exit(1);
-        }
-
-        // Configurar el tamaño de la memoria compartida
-        ftruncate(shm_fd, SHM_SIZE);
-    */
 
     // creo el archivo .txt para el resultado
     FILE *archivo;
@@ -271,6 +250,7 @@ int main(int argc, char *argv[])
                                         return 1;
                                     }
                                 } 
+                                finishedWriting(memory);
                                 // CIERRO EL ARCHIVO RESUL
                                 fclose(archivo);
                                 //destroySharedMemory(memory);                              
@@ -286,17 +266,5 @@ int main(int argc, char *argv[])
             }
         }
     }
-    /*
 
-        // ESPERA A QUE TERMINEN TODOS LOS PROCESOS HIJOS
-        for (int i = 0; i < cantSlaves; i++) {
-            printf("Esperando que terminen los pibes\n");
-            int status;
-            waitpid(-1, &status, 0); // Esperar a que cualquier proceso hijo termine
-            if (WIFEXITED(status)) {
-                printf("Proceso hijo terminado con estado %d.\n", WEXITSTATUS(status));
-            }
-        }
-        printf("Todos los procesos hijos han terminado. Programa principal finalizado.\n");
-        */
 }

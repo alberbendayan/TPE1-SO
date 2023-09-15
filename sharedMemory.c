@@ -6,9 +6,10 @@
 #include <string.h>
 #include <semaphore.h>
 #include <errno.h>
+#include "sharedMemory.h"
 
-#define BUFFERSIZE 1024
-#define NAMESIZE 64
+
+#define BUFFERSIZE 65536
 
 struct SharedMemory {
     int fd;
@@ -16,6 +17,7 @@ struct SharedMemory {
     int writePos;
     char name[NAMESIZE];
     sem_t *sem;
+    bool finished;
 };
 
 typedef struct SharedMemory* SharedMemoryPtr;
@@ -58,11 +60,20 @@ SharedMemoryPtr createSharedMemory(const char *name) {
     memory->fd = fd;
     memory->writePos = 0;
     memory->sem = sem;
+    memory->finished=false;
 
     for (int i = 0; name[i] != 0 && i < NAMESIZE; i++)
         memory->name[i] = name[i];
 
     return memory;
+}
+
+void finishedWriting(SharedMemoryPtr memory){
+    memory->finished=true;
+}
+
+bool isFinished(SharedMemoryPtr memory){
+    return memory->finished;
 }
 
 SharedMemoryPtr connectToSharedMemory(const char *name) {
