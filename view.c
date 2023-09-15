@@ -12,7 +12,7 @@
 
 
 
-#define SHM_SIZE 1024            // Tamaño de la memoria compartida
+
 
 int main()
 {
@@ -29,6 +29,19 @@ int main()
     
     SharedMemoryPtr memory = connectToSharedMemory(msg);
     char buffer[BUFFERSIZE];
+    int actualPos =0, posVieja=0;
+
+    while(1)
+    {
+        actualPos = readMemory(memory,buffer,actualPos,BUFFERSIZE);
+        if(actualPos > posVieja){
+            write(1,buffer,strlen(buffer)+1);
+            posVieja=actualPos;
+            if(isFinished(memory)){
+                exit(1);
+            }
+        }
+    }
     int actualPos =0, posVieja=0;
 
     while(1)
