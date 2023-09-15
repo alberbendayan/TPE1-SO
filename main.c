@@ -166,37 +166,7 @@ int main(int argc, char *argv[])
     // char nombre[50];
     // snprintf(nombre,"%s\n",SHAREDMEMORY);
     puts(SHAREDMEMORY);
-    // view = fork();
-    // if (view == 0)
-    // {
-    //     sleep(2);
-
-    //     exit(1);
-    // }
-
-    /*
-        int shm_fd;
-        void *shm_ptr;
-        sem_t *sem;
-
-        // Crear o abrir el semáforo
-        sem = sem_open(SEM_NAME, O_CREAT, 0666, 1);
-        if (sem == SEM_FAILED) {
-            perror("sem_open");
-            exit(1);
-        }
-
-        // Crear o abrir la memoria compartida
-        shm_fd = shm_open("/my_shm", O_CREAT | O_RDWR, 0666);
-        if (shm_fd == -1) {
-            perror("shm_open");
-            exit(1);
-        }
-
-        // Configurar el tamaño de la memoria compartida
-        ftruncate(shm_fd, SHM_SIZE);
-    */
-
+    
     // creo el archivo .txt para el resultado
     FILE *archivo;
     archivo = fopen("result.txt", "w");
@@ -237,8 +207,7 @@ int main(int argc, char *argv[])
                     fprintf(archivo, buffer);
 
                     writeInMemory(memory,buffer,bytes_read);
-                    
-
+                   
                     filesInSlave[i]--;
 
                     if (filesInSlave[i] == 0)
