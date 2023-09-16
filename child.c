@@ -29,12 +29,12 @@ void makeMD5(char *argv, char *hash)
     FILE *pipeMD5 = popen(command, "r");
     if (!pipeMD5)
     {
-        perror("Error al abrir el proceso");
+        perror("Failed to open the process");
     }
     char result[LONG_HASHMD5]; // El hash MD5 tiene 32 caracteres, más el carácter nulo = 33
     if (fgets(result, LONG_HASHMD5, pipeMD5) == NULL)
     {
-        perror("Error al leer el resultado");
+        perror("Failed to read the result");
         pclose(pipeMD5);
         exit(1);
     }

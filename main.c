@@ -1,77 +1,44 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <dirent.h>
-#include <sys/stat.h>
-#include <string.h>
-#include <sys/select.h>
-#include <sys/mman.h>
-#include <fcntl.h>
-#include <semaphore.h>
-#include "sharedMemory.h"
+#include "main.h"
 
-
-//#define INITIALARGS 2 // dsp hay q hacer una variable
-
-#define SHAREDMEMORY "/my_shm"
-
-
-int cantSlaves, iArgs = 1,initialArgs;
+int slavesQuantity, iArgs = 1,initialArgs;
 struct timeval timeout;
-
-void sendFile(char *archivo, int indice, int *filesInSlave, int *iArgs, int fd[][2]);
-void sendFile(char *archivo, int indice, int *filesInSlave, int *iArgs, int fd[][2])
-{
-    write(fd[indice][1], archivo, strlen(archivo) + 1);
-    write(fd[indice][1], "\n", 1);
-    filesInSlave[indice]++;
-    (*iArgs)++;
-}
 
 int main(int argc, char *argv[])
 {
     if (argc < 2)
     {
-        perror("Ingrese un argumento\n");
+        perror("Wrong arguments\n");
         return 1;
     }
-
-    // if (argc == 2 || argc == 3)
-    //     cantSlaves = 1; // xq si hay un solo archivo o dos archivos, con un solo esclavo estamo
-    // else
-    // {
-        cantSlaves = argc / 5 + 1;
-        if (cantSlaves > 10)
-            cantSlaves = 10;
+        slavesQuantity = argc / 5 + 1;
+        if (slavesQuantity > 10)
+            slavesQuantity= 10;
 
         initialArgs = argc / 15 + 1;
         if(initialArgs<2)
             initialArgs =2; // como minimo que pase 2 (xq sino seria todo igual)
     //}
 
-    pid_t slaves[cantSlaves];
+    pid_t slaves[slavesQuantity];
     // Arrays de pipes para la comunicación entre slaves y padre
-    int pipesToSlave[cantSlaves][2];
-    int pipesFromSlave[cantSlaves][2];
+    int pipesToSlave[slavesQuantity][2];
+    int pipesFromSlave[slavesQuantity][2];
 
-    int filesInSlave[cantSlaves];
+    int filesInSlave[slavesQuantity];
 
     // este for crea los pipes
-    for (int i = 0; i < cantSlaves; i++)
+    for (int i = 0; i < slavesQuantity; i++)
     {
         if (pipe(pipesToSlave[i]) == -1 || pipe(pipesFromSlave[i]) == -1)
         {
-            perror("Error al crear el pipe");
+            perror("Pipe could not be created");
             exit(1);
         }
         filesInSlave[i] = 0; // inicializo ambos contadores
         slaves[i] = fork();
         if (slaves[i] == -1)
         {
-            perror("Error al crear el proceso");
+            perror("Error initializing the process");
             exit(1);
         }
         if (slaves[i] == 0)
@@ -79,12 +46,12 @@ int main(int argc, char *argv[])
             // cierro los estandar y los que no uso
             if (close(0) == -1)
             {
-                perror("No se pudo cerrar el file descriptor estandar de lectura");
+                perror("Failed to close reading standard file descriptor");
                 return 1;
             }
             if (close(1) == -1)
             {
-                perror("No se pudo cerrar el file descriptor estandar de escritura");
+                perror("Failed to close writing standard file descriptor");
                 return 1;
             }
             // reasigno los fd
@@ -93,31 +60,31 @@ int main(int argc, char *argv[])
             // cierro los fd repetidos
             if (close(pipesToSlave[i][0]) == -1)
             {
-                perror("No se pudo cerrar el file descriptor al hijo de lectura");
+                perror("Failed to close reading standard file descriptor to slave");
                 return 1;
             }
             if (close(pipesFromSlave[i][1]) == -1)
             {
-                perror("No se pudo cerrar el file descriptor desde el hijo de escritura");
+                perror("Failed to close writing standard file descriptor from slave");
                 return 1;
             }
             for (int j = 0; j <= i; j++)
             {
                 if (close(pipesToSlave[j][1]) == -1)
                 {
-                    perror("No se pudo cerrar el file descriptor al hijo de escritura");
+                    perror("Failed to close writing standard file descriptor to slave");
                     return 1;
                 }
                 if (close(pipesFromSlave[j][0]) == -1)
                 {
-                    perror("No se pudo cerrar el file descriptor desde el hijo de lectura");
+                    perror("Failed to close reading standard file descriptor from slave");
                     return 1;
                 }
             }
 
             char *argv1[] = {"./child", NULL}; // le puse argv1 para q sea diferente al argv
             execve("./child", argv1, NULL);
-            perror("execve"); // Esto solo se ejecuta si execve falla
+            perror("execve failed"); // Esto solo se ejecuta si execve falla
             exit(1);
         }
         else
@@ -144,7 +111,7 @@ int main(int argc, char *argv[])
     fd_set read_fds;
     FD_ZERO(&read_fds);
     int max_fd = -1;
-    for (int i = 0; i < cantSlaves; i++)
+    for (int i = 0; i < slavesQuantity; i++)
     {
         FD_SET(pipesFromSlave[i][0], &read_fds);
         if (pipesFromSlave[i][0] > max_fd)
@@ -154,10 +121,10 @@ int main(int argc, char *argv[])
     }
     puts(SHAREDMEMORY);
     // creo el archivo .txt para el resultado
-    FILE *archivo;
-    archivo = fopen("result.txt", "w");
-    if (archivo == NULL) {
-        perror("No se pudo abrir el archivo.\n");
+    FILE *file;
+    file = fopen("result.txt", "w");
+    if (file == NULL) {
+        perror("File could not be opened.\n");
         
         return 1; // Salir del programa con un código de error
     }
@@ -171,10 +138,10 @@ int main(int argc, char *argv[])
         int ready = select(max_fd + 1, &tmp_fds, NULL, NULL, &timeout);
         if (ready == -1)
         {
-            perror("Error en select");
+            perror("Error in select");
             exit(EXIT_FAILURE);
         }
-        for (int i = 0; i < cantSlaves; i++)
+        for (int i = 0; i < slavesQuantity; i++)
         {
             if (FD_ISSET(pipesFromSlave[i][0], &tmp_fds))
             {
@@ -184,7 +151,7 @@ int main(int argc, char *argv[])
                 if (bytes_read > 0)
                 {
                     writeInMemory(memory,buffer,bytes_read);  
-                    fprintf(archivo, buffer);
+                    fprintf(file, buffer);
                     filesInSlave[i]--;
                     if (filesInSlave[i] == 0)
                     {
@@ -197,27 +164,27 @@ int main(int argc, char *argv[])
                             // Como no hay mas archivos mato al slave q acaba de entregarme
                             if (close(pipesToSlave[i][1]) == -1)
                             {
-                                perror("No se pudo cerrar el file descriptor de escritura al hijo");
+                                perror("Failed to close writing file descriptor to slave");
                                 return 1;
                             }
                             int j = 0;
-                            while (filesInSlave[j] == 0 && j <cantSlaves) // checkeo q no haya archivos pendientes
+                            while (filesInSlave[j] == 0 && j <slavesQuantity) // checkeo q no haya archivos pendientes
                             {
                                 j++;
                             }
-                            if (j == cantSlaves)
+                            if (j == slavesQuantity)
                             {
-                                for (int k = 0; k < cantSlaves; k++)
+                                for (int k = 0; k < slavesQuantity; k++)
                                 {
                                     if (close(pipesFromSlave[k][0]) == -1)
                                     {
-                                        perror("No se pudo cerrar el file descriptor de lecutra del hijo");
+                                        perror("Failed to close reading file descriptor from slave");
                                         return 1;
                                     }
                                 } 
                                 finishedWriting(memory);
                                 // CIERRO EL ARCHIVO RESUL
-                                fclose(archivo);
+                                fclose(file);
                                 //destroySharedMemory(memory);                              
                                 exit(1);
                             }
@@ -226,9 +193,17 @@ int main(int argc, char *argv[])
                 }
                 else if (bytes_read != 0)
                 {
-                    perror("Error al leer del pipe");
+                    perror("Failed to read from pipe");
                 }
             }
         }
     }
+}
+
+void sendFile(char *file, int index, int *filesInSlave, int *iArgs, int fd[][2])
+{
+    write(fd[index][1], file, strlen(file) + 1);
+    write(fd[index][1], "\n", 1);
+    filesInSlave[index]++;
+    (*iArgs)++;
 }

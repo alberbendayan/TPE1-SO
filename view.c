@@ -23,12 +23,12 @@ int main(int argc, char *argv[])
     }
     SharedMemoryPtr memory = connectToSharedMemory(msg);
     char buffer[BUFFERSIZE];
-    int actualPos =0, posVieja=0;
+    int actualPos =0, prevPos=0;
     while(1)
     {
         actualPos = readMemory(memory,buffer,actualPos,BUFFERSIZE);
         
-        if(actualPos > posVieja){
+        if(actualPos > prevPos){
             int longitud = strlen(buffer);
             //write(1,buffer,longitud+1);
             printf("%s",buffer);
@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
                 buffer[i]=0;
             }
             
-            posVieja=actualPos;
+            prevPos=actualPos;
             if(isFinished(memory,actualPos)){
                 exit(1);
             }

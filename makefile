@@ -1,5 +1,5 @@
 all: 
-	gcc -c sharedMemory.h
+	gcc -c sharedMemory.h main.h
 	gcc -Wall -c child.c main.c view.c sharedMemory.c
 	gcc main.o sharedMemory.o -o prog 
 	gcc child.o -o child
