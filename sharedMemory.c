@@ -135,9 +135,9 @@ int readMemory(SharedMemoryPtr memory, char *msg, int inicialPosition, int buffe
         perror("Out of bounds\n");
         return -1;
     }
-
-    sem_wait(memory->sem);
-
+    if(memory->finished==false){ //Esto permite que llame al proceso view varias veces a pesar de correr el main una sola vez
+        sem_wait(memory->sem);
+    }
     int i;
     for (i = 0; i < bufferSize &&  memory->buffer[inicialPosition + i]!='\n' && inicialPosition + i <= memory->writePos; i++) {
         msg[i] = memory->buffer[inicialPosition + i];
