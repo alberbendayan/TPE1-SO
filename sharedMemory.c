@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <stdio.h>
 #include <fcntl.h>
 #include <sys/mman.h>
@@ -61,7 +63,7 @@ SharedMemoryPtr createSharedMemory(const char *name) {
     memory->sem = sem;
     memory->finished=false;
 
-    for (int i = 0; name[i] != 0 && i < NAMESIZE; i++)
+    for (int i = 0;  i < NAMESIZE && name[i] != 0; i++)
         memory->name[i] = name[i];
 
     return memory;
@@ -152,9 +154,10 @@ int readMemory(SharedMemoryPtr memory, char *msg, int inicialPosition, int buffe
 void destroySharedMemory(SharedMemoryPtr memory) {
     if (memory != NULL) {
         sem_close(memory->sem);
-        munmap(memory, sizeof(struct SharedMemory));
         close(memory->fd);
         shm_unlink(memory->name);
+        munmap(memory, sizeof(struct SharedMemory));
+
     }
 }
 

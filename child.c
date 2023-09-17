@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -27,9 +29,10 @@ void makeMD5(char *argv, char *hash)
     snprintf(command, sizeof(command), "md5sum ./%s", filename);
     // Ejecuta el comando md5sum
     FILE *pipeMD5 = popen(command, "r");
-    if (!pipeMD5)
+    if (pipeMD5==NULL)
     {
         perror("Failed to open the process");
+        exit(1);
     }
     char result[LONG_HASHMD5]; // El hash MD5 tiene 32 caracteres, más el carácter nulo = 33
     if (fgets(result, LONG_HASHMD5, pipeMD5) == NULL)

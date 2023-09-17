@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,7 +19,7 @@ int main(int argc, char *argv[])
         scanf("%s",msg);
     }else{
         char *aux=argv[1];
-        for(int i=0;aux[i]!=0 && i<1024;i++){
+        for(int i=0;i<1024 && aux[i]!=0 ;i++){
             msg[i]=aux[i];
         }
     }

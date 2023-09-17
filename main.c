@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "main.h"
 
 int slavesQuantity, iArgs = 1,initialArgs;
@@ -151,7 +153,7 @@ int main(int argc, char *argv[])
                 if (bytes_read > 0)
                 {
                     writeInMemory(memory,buffer,bytes_read);  
-                    fprintf(file, buffer);
+                    fprintf(file,"%s", buffer);
                     filesInSlave[i]--;
                     if (filesInSlave[i] == 0)
                     {
@@ -168,7 +170,7 @@ int main(int argc, char *argv[])
                                 return 1;
                             }
                             int j = 0;
-                            while (filesInSlave[j] == 0 && j <slavesQuantity) // checkeo q no haya archivos pendientes
+                            while (j <slavesQuantity && filesInSlave[j] == 0 ) // checkeo q no haya archivos pendientes
                             {
                                 j++;
                             }
