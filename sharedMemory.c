@@ -18,7 +18,7 @@ struct SharedMemory {
     char buffer[BUFFERSIZE];
     int writePos;
     char name[NAMESIZE];
-    sem_t *sem;
+    sem_t *canRead;
     bool finished;
 };
 
@@ -26,8 +26,8 @@ typedef struct SharedMemory* SharedMemoryPtr;
 
 SharedMemoryPtr createSharedMemory(const char *name) {
     //semaforo
-    sem_t *sem = sem_open(name, O_CREAT, S_IRUSR | S_IWUSR, 1);
-    if (sem == SEM_FAILED) {
+    sem_t *canRead = sem_open(name, O_CREAT, S_IRUSR | S_IWUSR, 1);
+    if (canRead == SEM_FAILED) {
         perror("sem_open");
         return NULL;
     }
@@ -35,7 +35,7 @@ SharedMemoryPtr createSharedMemory(const char *name) {
     int fd = shm_open(name, O_CREAT | O_TRUNC | O_RDWR, S_IRUSR | S_IWUSR);
     if (fd == -1) {
         perror("shm_open");
-        sem_close(sem);
+        sem_close(canRead);
         sem_unlink(name);
         return NULL;
     }
@@ -43,7 +43,7 @@ SharedMemoryPtr createSharedMemory(const char *name) {
     if (ftruncate(fd, sizeof(struct SharedMemory)) == -1) {
         perror("ftruncate");
         close(fd);
-        sem_close(sem);
+        sem_close(canRead);
         sem_unlink(name);
         return NULL;
     }
@@ -53,14 +53,14 @@ SharedMemoryPtr createSharedMemory(const char *name) {
     if (memory == MAP_FAILED) {
         perror("mmap");
         close(fd);
-        sem_close(sem);
+        sem_close(canRead);
         sem_unlink(name);
         return NULL;
     }
 
     memory->fd = fd;
     memory->writePos = 0;
-    memory->sem = sem;
+    memory->canRead = canRead;
     memory->finished=false;
 
     for (int i = 0;  i < NAMESIZE && name[i] != 0; i++)
@@ -90,8 +90,8 @@ SharedMemoryPtr connectToSharedMemory(const char *name) {
         return NULL;
     }
 
-    sem_t *sem = sem_open(name, 0);
-    if (sem == SEM_FAILED) {
+    sem_t *canRead = sem_open(name, 0);
+    if (canRead == SEM_FAILED) {
         perror("sem_open");
         close(fd);
         return NULL;
@@ -102,12 +102,12 @@ SharedMemoryPtr connectToSharedMemory(const char *name) {
     if (memory == MAP_FAILED) {
         perror("mmap");
         close(fd);
-        sem_close(sem);
+        sem_close(canRead);
         return NULL;
     }
 
     memory->fd = fd;
-    memory->sem = sem;
+    memory->canRead = canRead;
 
     return memory;
 }
@@ -117,43 +117,40 @@ int writeInMemory(SharedMemoryPtr memory, char *msg, int size) {
         perror("No hay espacio suficiente para escribir en el buffer\n");
         return -1;
     } else {
-        //printf("msg: %s",msg);
-        // sleep(1);
-
         int i;
         for (i = 0; i < size  && msg[i] != 0; i++) {
             memory->buffer[memory->writePos + i] = msg[i];
         }
         memory->writePos += i;
-        sem_post(memory->sem);
+        sem_post(memory->canRead);
         return 1;
     }
 }
 
 
-int readMemory(SharedMemoryPtr memory, char *msg, int inicialPosition, int bufferSize) {
+int readMemory(SharedMemoryPtr memory, char *msg, int initialPosition, int bufferSize) {
     
-    if (inicialPosition >= BUFFERSIZE || inicialPosition < 0) {
+    if (initialPosition >= BUFFERSIZE || initialPosition < 0) {
         perror("Out of bounds\n");
         return -1;
     }
     if(memory->finished==false){ //Esto permite que llame al proceso view varias veces a pesar de correr el main una sola vez
-        sem_wait(memory->sem);
+        sem_wait(memory->canRead);
     }
     int i;
-    for (i = 0; i < bufferSize &&  memory->buffer[inicialPosition + i]!='\n' && inicialPosition + i <= memory->writePos; i++) {
-        msg[i] = memory->buffer[inicialPosition + i];
+    for (i = 0; i < bufferSize &&  memory->buffer[initialPosition + i]!='\n' && initialPosition + i <= memory->writePos; i++) {
+        msg[i] = memory->buffer[initialPosition + i];
     }
-    if(memory->buffer[inicialPosition + i]=='\n'){
+    if(memory->buffer[initialPosition + i]=='\n'){
         msg[i++]='\n';
     }
     msg[i]='\0';
-    return inicialPosition + i;
+    return initialPosition + i;
 }
 
 void destroySharedMemory(SharedMemoryPtr memory) {
     if (memory != NULL) {
-        sem_close(memory->sem);
+        sem_close(memory->canRead);
         close(memory->fd);
         shm_unlink(memory->name);
         munmap(memory, sizeof(struct SharedMemory));
