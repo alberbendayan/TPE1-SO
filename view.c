@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
     sleep(2);   
     char msg[1024];
     if(argc <2){
-        scanf("%s",msg);
+        scanf("%1023s",msg);
     }else{
         char *aux=argv[1];
         for(int i=0;i<1024 && aux[i]!=0 ;i++){

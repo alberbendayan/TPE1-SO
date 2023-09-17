@@ -25,14 +25,14 @@ struct SharedMemory {
 typedef struct SharedMemory* SharedMemoryPtr;
 
 SharedMemoryPtr createSharedMemory(const char *name) {
-    shm_unlink(name);
+    //semaforo
     sem_t *sem = sem_open(name, O_CREAT, S_IRUSR | S_IWUSR, 1);
     if (sem == SEM_FAILED) {
         perror("sem_open");
         return NULL;
     }
 
-    int fd = shm_open(name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+    int fd = shm_open(name, O_CREAT | O_TRUNC | O_RDWR, S_IRUSR | S_IWUSR);
     if (fd == -1) {
         perror("shm_open");
         sem_close(sem);
