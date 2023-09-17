@@ -1,15 +1,6 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/mman.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <semaphore.h>
-#include "sharedMemory.h"
+#include "view.h"
 
 int main(int argc, char *argv[])
 {
@@ -32,6 +23,11 @@ int main(int argc, char *argv[])
         
         if(actualPos > prevPos){
             int longitud = strlen(buffer);
+            if(buffer[longitud-1]=='+'){
+                buffer[longitud-1]='\0';
+                printf("%s",buffer);
+                exit(1);
+            }
             //write(1,buffer,longitud+1);
             printf("%s",buffer);
             // limpio el buffer 
@@ -40,9 +36,9 @@ int main(int argc, char *argv[])
             }
             
             prevPos=actualPos;
-            if(isFinished(memory,actualPos)){
+            /*if(isFinished(memory,actualPos)){
                 exit(1);
-            }
+            }*/
         }
     }
 }

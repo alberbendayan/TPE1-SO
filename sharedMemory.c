@@ -1,17 +1,9 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-#include <stdio.h>
-#include <fcntl.h>
-#include <sys/mman.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <string.h>
-#include <semaphore.h>
-#include <errno.h>
 #include "sharedMemory.h"
 
 
-#define BUFFERSIZE 65536
+
 
 struct SharedMemory {
     int fd;
@@ -114,7 +106,7 @@ SharedMemoryPtr connectToSharedMemory(const char *name) {
 
 int writeInMemory(SharedMemoryPtr memory, char *msg, int size) {
     if (memory->writePos + size >= BUFFERSIZE) {
-        perror("No hay espacio suficiente para escribir en el buffer\n");
+        perror("There is not enough buffer writing space\n");
         return -1;
     } else {
         int i;

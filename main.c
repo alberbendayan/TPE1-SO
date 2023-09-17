@@ -178,7 +178,8 @@ int main(int argc, char *argv[])
                                         return 1;
                                     }
                                 } 
-                                finishedWriting(memory);
+                                writeInMemory(memory,"+",1); 
+                                //finishedWriting(memory);
                                 // CIERRO EL ARCHIVO RESUL
                                 fclose(file);
                                 //destroySharedMemory(memory);                              
