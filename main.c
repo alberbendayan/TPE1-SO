@@ -1,12 +1,17 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "main.h"
 
 int slavesQuantity, iArgs = 1,initialArgs;
 struct timeval timeout;
-
 int main(int argc, char *argv[])
 {
+   
+
     if (argc < 2)
     {
         perror("Wrong arguments\n");
@@ -26,7 +31,7 @@ int main(int argc, char *argv[])
     int pipesFromSlave[slavesQuantity][2];
 
     int filesInSlave[slavesQuantity];
-
+   
     // este for crea los pipes
     for (int i = 0; i < slavesQuantity; i++)
     {

@@ -1,5 +1,9 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <stdio.h>
 #include <fcntl.h>
 #include <sys/mman.h>
@@ -19,6 +23,7 @@ struct SharedMemory {
     int writePos;
     char name[NAMESIZE];
     sem_t *canRead;
+    sem_t *checkFinished;
     bool finished;
 };
 
@@ -26,8 +31,13 @@ typedef struct SharedMemory* SharedMemoryPtr;
 
 SharedMemoryPtr createSharedMemory(const char *name){
     //semaforo
-    sem_t *canRead = sem_open(name, O_CREAT, S_IRUSR | S_IWUSR, 1);
+    sem_t *canRead = sem_open(name, O_CREAT, S_IRUSR | S_IWUSR, 0);
     if (canRead == SEM_FAILED) {
+        perror("sem_open");
+        return NULL;
+    }
+        sem_t *checkFinished = sem_open("checkFinished", O_CREAT, S_IRUSR | S_IWUSR, 1);
+    if (checkFinished == SEM_FAILED) {
         perror("sem_open");
         return NULL;
     }
@@ -37,6 +47,8 @@ SharedMemoryPtr createSharedMemory(const char *name){
         perror("shm_open");
         sem_close(canRead);
         sem_unlink(name);
+        sem_close(checkFinished);
+        sem_unlink("checkFinished");
         return NULL;
     }
 
@@ -45,6 +57,8 @@ SharedMemoryPtr createSharedMemory(const char *name){
         close(fd);
         sem_close(canRead);
         sem_unlink(name);
+        sem_close(checkFinished);
+        sem_unlink("checkFinished");
         return NULL;
     }
 
@@ -61,6 +75,7 @@ SharedMemoryPtr createSharedMemory(const char *name){
     memory->fd = fd;
     memory->writePos = 0;
     memory->canRead = canRead;
+    memory->checkFinished=checkFinished;
     memory->finished=false;
 
     for (int i = 0;  i < NAMESIZE && name[i] != 0; i++)
@@ -70,7 +85,9 @@ SharedMemoryPtr createSharedMemory(const char *name){
 }
 
 void finishedWriting(SharedMemoryPtr memory){
+    sem_wait(memory->checkFinished);
     memory->finished=true;
+    sem_post(memory->checkFinished);
 }
 
 bool isFinished(SharedMemoryPtr memory,int readingPosition){
@@ -96,7 +113,12 @@ SharedMemoryPtr connectToSharedMemory(const char *name) {
         close(fd);
         return NULL;
     }
-
+        sem_t *checkFinished = sem_open("checkFinished", 0);
+    if (checkFinished == SEM_FAILED) {
+        perror("sem_open");
+        close(fd);
+        return NULL;
+    }
     SharedMemoryPtr memory = (SharedMemoryPtr) mmap(NULL, sizeof(struct SharedMemory), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 
     if (memory == MAP_FAILED) {
@@ -108,6 +130,7 @@ SharedMemoryPtr connectToSharedMemory(const char *name) {
 
     memory->fd = fd;
     memory->canRead = canRead;
+    memory->checkFinished=checkFinished;
 
     return memory;
 }
@@ -134,9 +157,11 @@ int readMemory(SharedMemoryPtr memory, char *msg, int initialPosition, int buffe
         perror("Out of bounds\n");
         return -1;
     }
+    sem_wait(memory->checkFinished);
     if(memory->finished==false){ //Esto permite que llame al proceso view varias veces a pesar de correr el main una sola vez
         sem_wait(memory->canRead);
     }
+    sem_post(memory->checkFinished);
     int i;
     for (i = 0; i < bufferSize &&  memory->buffer[initialPosition + i]!='\n' && initialPosition + i <= memory->writePos; i++) {
         msg[i] = memory->buffer[initialPosition + i];
