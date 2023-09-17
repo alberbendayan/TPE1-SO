@@ -16,9 +16,8 @@ int main(int argc, char *argv[])
         if (slavesQuantity > 10)
             slavesQuantity= 10;
 
-        initialArgs = argc / 15 + 1;
-        if(initialArgs<2)
-            initialArgs =2; // como minimo que pase 2 (xq sino seria todo igual)
+        initialArgs = argc / 15 + 2;
+ // como minimo que pase 2 (xq sino seria todo igual)
     //}
 
     pid_t slaves[slavesQuantity];
@@ -133,11 +132,9 @@ int main(int argc, char *argv[])
     SharedMemoryPtr memory = createSharedMemory(SHAREDMEMORY);
     while (1)
     {
+        
         fd_set tmp_fds = read_fds;
-        timeout.tv_sec = 4; // 3 segundos
-        timeout.tv_usec = 0;
-
-        int ready = select(max_fd + 1, &tmp_fds, NULL, NULL, &timeout);
+        int ready = select(max_fd + 1, &tmp_fds, NULL, NULL,NULL);
         if (ready == -1)
         {
             perror("Error in select");
@@ -170,10 +167,7 @@ int main(int argc, char *argv[])
                                 return 1;
                             }
                             int j = 0;
-                            while (j <slavesQuantity && filesInSlave[j] == 0 ) // checkeo q no haya archivos pendientes
-                            {
-                                j++;
-                            }
+                            for(j=0;j <slavesQuantity && filesInSlave[j] == 0;j++);
                             if (j == slavesQuantity)
                             {
                                 for (int k = 0; k < slavesQuantity; k++)

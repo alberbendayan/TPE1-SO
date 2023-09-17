@@ -24,7 +24,7 @@ struct SharedMemory {
 
 typedef struct SharedMemory* SharedMemoryPtr;
 
-SharedMemoryPtr createSharedMemory(const char *name) {
+SharedMemoryPtr createSharedMemory(const char *name){
     //semaforo
     sem_t *canRead = sem_open(name, O_CREAT, S_IRUSR | S_IWUSR, 1);
     if (canRead == SEM_FAILED) {

@@ -1,6 +1,6 @@
 # Compilador y flags
 CC = gcc
-CFLAGS = -Wall -fsanitize=address -g
+CFLAGS = -Wall 
 
 # Archivos fuente para cada programa
 APP_SRCS = main.c sharedMemory.c
