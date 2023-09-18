@@ -1,6 +1,7 @@
 #ifndef SHARED_MEMORY_H
 #define SHARED_MEMORY_H
 #include <stdio.h>
+#include <stdlib.h>
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -14,7 +15,6 @@
 #define BUFFERSIZE 65536
 #define NAMESIZE 128
 
-struct SharedMemory;
 
 typedef struct SharedMemory * SharedMemoryPtr;
 
@@ -24,7 +24,5 @@ int writeInMemory(SharedMemoryPtr memory, char * msg, int size);
 SharedMemoryPtr connectToSharedMemory(const char *name);
 int readMemory (SharedMemoryPtr memory, char*msg,int inicialPosition,int bufferSize);
 size_t getSize(SharedMemoryPtr memory);
-bool isFinished(SharedMemoryPtr memory,int readingPosition);
-void finishedWriting(SharedMemoryPtr memory);
-void disconectSharedMemory (SharedMemoryPtr memory);
+void disconnectSharedMemory (SharedMemoryPtr memory);
 #endif

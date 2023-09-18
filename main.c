@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "main.h"
 
 int slavesQuantity, iArgs = 1,initialArgs;
@@ -199,9 +201,9 @@ int main(int argc, char *argv[])
                                         return 1;
                                     }
                                 } 
-                                writeInMemory(memory,"+",1); 
-                                disconectSharedMemory(memory);
-                                finishedWriting(memory);
+                                writeInMemory(memory,"+",2); 
+                                disconnectSharedMemory(memory);
+                                // finishedWriting(memory);
                                 // CIERRO EL ARCHIVO RESUL
                                 fclose(file);
                                 //destroySharedMemory(memory);                              
