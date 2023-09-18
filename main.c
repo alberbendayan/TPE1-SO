@@ -1,5 +1,3 @@
-// This is a personal academic project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "main.h"
 
 int slavesQuantity, iArgs = 1,initialArgs;
@@ -120,6 +118,7 @@ int main(int argc, char *argv[])
             max_fd = pipesFromSlave[i][0];
         }
     }
+    // PROBLEMAS CON VALGRIND
     puts(SHAREDMEMORY);
     // creo el archivo .txt para el resultado
     FILE *file;
