@@ -1,8 +1,5 @@
 #include "sharedMemory.h"
 
-
-
-
 struct SharedMemory {
     int fd;
     char buffer[BUFFERSIZE];
@@ -31,6 +28,7 @@ SharedMemoryPtr createSharedMemory(const char *name){
     }
 
     if (ftruncate(fd, sizeof(struct SharedMemory)) == -1) {
+    //if (ftruncate(fd, BUFFERSIZE) == -1) {
         perror("ftruncate");
         close(fd);
         sem_close(canRead);
@@ -59,6 +57,10 @@ SharedMemoryPtr createSharedMemory(const char *name){
     return memory;
 }
 
+void disconectSharedMemory (SharedMemoryPtr memory){
+    munmap(memory, sizeof(struct SharedMemory));
+}
+
 void finishedWriting(SharedMemoryPtr memory){
     memory->finished=true;
 }
@@ -75,6 +77,7 @@ SharedMemoryPtr connectToSharedMemory(const char *name) {
     }
 
     if (ftruncate(fd, sizeof(struct SharedMemory)) == -1) {
+    //if (ftruncate(fd, BUFFERSIZE) == -1) {
         perror("ftruncate");
         close(fd);
         return NULL;
@@ -140,7 +143,7 @@ int readMemory(SharedMemoryPtr memory, char *msg, int initialPosition, int buffe
 
 void destroySharedMemory(SharedMemoryPtr memory) {
     if (memory != NULL) {
-        sem_close(memory->canRead);
+        sem_destroy(memory->canRead);
         close(memory->fd);
         shm_unlink(memory->name);
         munmap(memory, sizeof(struct SharedMemory));

@@ -34,9 +34,10 @@ int main(int argc, char *argv[])
             }
             
             prevPos=actualPos;
-            /*if(isFinished(memory,actualPos)){
+            if(isFinished(memory,actualPos)){
+                destroySharedMemory(memory);
                 exit(1);
-            }*/
+            }
         }
     }
 }

@@ -26,4 +26,5 @@ int readMemory (SharedMemoryPtr memory, char*msg,int inicialPosition,int bufferS
 size_t getSize(SharedMemoryPtr memory);
 bool isFinished(SharedMemoryPtr memory,int readingPosition);
 void finishedWriting(SharedMemoryPtr memory);
+void disconectSharedMemory (SharedMemoryPtr memory);
 #endif

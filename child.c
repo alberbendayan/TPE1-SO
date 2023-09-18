@@ -8,12 +8,50 @@
 #define LONG_HASHMD5 33 // tiene uno demas x el caracter nulo
 
 void makeMD5(char *argv, char *hash);
+
+/*int main(int argc, char *argv[])
+{
+
+    char hashMD5[MAX_LONG_RET];
+    char msg[READ_BUFFER_SIZE];
+    int characterRead;
+
+    int j = 0;
+    char txt[READ_BUFFER_SIZE] = {0};
+    // while(fgets(msg,READ_BUFFER_SIZE,stdin)){
+    // makeMD5(msg,hashMD5);
+    // write(1,hashMD5,strlen(hashMD5)+1);
+    while ((characterRead = read(0, msg, READ_BUFFER_SIZE)))
+    {
+        for (int i = 0; i < characterRead; i++)
+        {
+            if (msg[i] != '\n')
+            {
+                txt[j] = msg[i];
+                j++;
+            }
+            else
+            {
+                txt[j] = 0;
+                makeMD5(txt, hashMD5);
+                write(1, hashMD5, strlen(hashMD5) + 1);
+                sleep(1); // lo q nos pasa con valgrind es que nos escribe tan rapido q el main lee todo como un solo bloque
+                j = 0;
+            }
+        }
+    }
+    exit(1);
+}*/
+
 int main(int argc, char *argv[])
 {
     char hashMD5[MAX_LONG_RET];
     char msg[READ_BUFFER_SIZE];
     while(fgets(msg,READ_BUFFER_SIZE,stdin)){
         makeMD5(msg,hashMD5);
+        // lo q nos pasa con valgrind es que nos escribe tan rapido q el main lee todo como un solo bloque
+        // sin valgrind no es necesario este sleep
+        sleep(1);
         write(1,hashMD5,strlen(hashMD5)+1);
     }
     exit(1);

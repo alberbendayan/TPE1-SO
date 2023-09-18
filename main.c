@@ -15,6 +15,7 @@ int main(int argc, char *argv[])
             slavesQuantity= 10;
 
         initialArgs = argc / 15 + 2;
+        //initialArgs = 1; // si mando un solo archivo, el valgrin tira 3 errores menos
  // como minimo que pase 2 (xq sino seria todo igual)
     //}
 
@@ -119,8 +120,9 @@ int main(int argc, char *argv[])
         }
     }
     // PROBLEMAS CON VALGRIND
-    puts(SHAREDMEMORY);
     // creo el archivo .txt para el resultado
+
+    // EL FILE TIENE 2 PROBLEMAS CON VALGRIND
     FILE *file;
     file = fopen("result.txt", "w");
     if (file == NULL) {
@@ -129,6 +131,7 @@ int main(int argc, char *argv[])
         return 1; // Salir del programa con un código de error
     }
     SharedMemoryPtr memory = createSharedMemory(SHAREDMEMORY);
+    puts(SHAREDMEMORY);
     while (1)
     {
         
@@ -148,9 +151,28 @@ int main(int argc, char *argv[])
                 ssize_t bytes_read = read(pipesFromSlave[i][0], buffer, sizeof(buffer));
                 if (bytes_read > 0)
                 {
+                    /*int indice=0,indiceAnterior = 0;
+                    while (indice<bytes_read)
+                    {
+                        if(buffer[indice] == '\n' || buffer[indice]==0){
+                            write(1,buffer+indiceAnterior,indice - indiceAnterior);
+                            writeInMemory(memory,buffer+indiceAnterior,indice - indiceAnterior);  
+                            fprintf(file,"%s", buffer+indiceAnterior);
+                            filesInSlave[i]--;
+                            indiceAnterior=indice;
+                        }
+
+                        indice++;
+                    }*/
+                    
+
+                    //write(1,buffer,bytes_read);
                     writeInMemory(memory,buffer,bytes_read);  
                     fprintf(file,"%s", buffer);
+                    //filesInSlave[i] = 0;
                     filesInSlave[i]--;
+
+                    //printf("Soy el proceso %d y me quedan %d archivos\n",i,filesInSlave[i]);
                     if (filesInSlave[i] == 0)
                     {
                         if (iArgs < argc)
@@ -178,7 +200,8 @@ int main(int argc, char *argv[])
                                     }
                                 } 
                                 writeInMemory(memory,"+",1); 
-                                //finishedWriting(memory);
+                                disconectSharedMemory(memory);
+                                finishedWriting(memory);
                                 // CIERRO EL ARCHIVO RESUL
                                 fclose(file);
                                 //destroySharedMemory(memory);                              
