@@ -13,13 +13,14 @@ void makeMD5(char *argv, char *hash);
 
 int main(int argc, char *argv[])
 {
+    //setvbuf(stdout, NULL, _IONBF, 0); 
     char hashMD5[MAX_LONG_RET];
     char msg[READ_BUFFER_SIZE];
     while(fgets(msg,READ_BUFFER_SIZE,stdin)){
         makeMD5(msg,hashMD5);
         // lo q nos pasa con valgrind es que nos escribe tan rapido q el main lee todo como un solo bloque
         // sin valgrind no es necesario este sleep
-        sleep(1);
+        //sleep(1);
         write(1,hashMD5,strlen(hashMD5)+1);
     }
     exit(1);

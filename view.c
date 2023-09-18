@@ -4,7 +4,8 @@
 
 int main(int argc, char *argv[])
 {
-    sleep(2);   
+    sleep(2);  
+    setvbuf(stdout, NULL, _IONBF, 0); 
     char msg[1024];
     if(argc <2){
         scanf("%1023s",msg);
@@ -27,6 +28,7 @@ int main(int argc, char *argv[])
                 exit(1);
             }
             printf("%s",buffer);
+            fflush(stdout);
             //sleep(1);      
             prevPos=actualPos;
 
