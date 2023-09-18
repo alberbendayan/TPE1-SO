@@ -20,6 +20,9 @@ int main(int argc, char *argv[])
     char msg[READ_BUFFER_SIZE];
     while(fgets(msg,READ_BUFFER_SIZE,stdin)){
         makeMD5(msg,hashMD5);
+        // ESTE SLEEP ES UNICAMENTE PARA QUE FUNCIONE CORRECTAMENTE CON EL VALGRIND, PARA CORRERLO SIN VALGRING
+        // NO ES NECESARIO CORRERLO CON EL SLEEP
+        sleep(1);
         write(1,hashMD5,strlen(hashMD5)+1);
     }
     exit(1);

@@ -125,8 +125,7 @@ int main(int argc, char *argv[])
             max_fd = pipesFromSlave[i][0];
         }
     }
-    puts(SHAREDMEMORY);
-    // creo el archivo .txt para el resultado
+     // creo el archivo .txt para el resultado
     FILE *file;
     file = fopen("result.txt", "w");
     if (file == NULL) {
@@ -135,6 +134,7 @@ int main(int argc, char *argv[])
         return 1; // Salir del programa con un código de error
     }
     SharedMemoryPtr memory = createSharedMemory(SHAREDMEMORY);
+    puts(SHAREDMEMORY);
     while (1)
     {
         
