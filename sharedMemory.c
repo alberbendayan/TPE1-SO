@@ -38,7 +38,7 @@ SharedMemoryPtr createSharedMemory(const char *name){
         return NULL;
     }
 
-    if (sem_init(&memory->canRead, 0, 1) == -1) {
+    if (sem_init(&memory->canRead, 1, 0) == -1) {
         perror("sem_init");
         exit(EXIT_FAILURE);
     }

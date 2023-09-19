@@ -7,16 +7,18 @@ struct timeval timeout;
 
 int main(int argc, char *argv[])
 {
+    setvbuf(stdout, NULL, _IONBF, 0);
+
     if (argc < 2)
     {
         perror("Wrong arguments\n");
         return 1;
     }
-        slavesQuantity = argc / 5 + 1;
-        if (slavesQuantity > 10)
-            slavesQuantity= 10;
+    slavesQuantity = argc / 5 + 1;
+    if (slavesQuantity > 10)
+        slavesQuantity= 10;
 
-        initialArgs = argc / 15 + 2;
+    initialArgs = argc / 15 + 2;
         //initialArgs = 1; // si mando un solo archivo, el valgrin tira 3 errores menos
  // como minimo que pase 2 (xq sino seria todo igual)
     //}
@@ -109,18 +111,7 @@ int main(int argc, char *argv[])
             }
         }
     }
-    // Configurar los descriptores de archivo para select
-    fd_set read_fds;
-    FD_ZERO(&read_fds);
-    int max_fd = -1;
-    for (int i = 0; i < slavesQuantity; i++)
-    {
-        FD_SET(pipesFromSlave[i][0], &read_fds);
-        if (pipesFromSlave[i][0] > max_fd)
-        {
-            max_fd = pipesFromSlave[i][0];
-        }
-    }
+    
     // PROBLEMAS CON VALGRIND
     // creo el archivo .txt para el resultado
 
@@ -136,7 +127,18 @@ int main(int argc, char *argv[])
     puts(SHAREDMEMORY);
     while (1)
     {
-        
+        // Configurar los descriptores de archivo para select
+        fd_set read_fds;
+        FD_ZERO(&read_fds);
+        int max_fd = -1;
+        for (int i = 0; i < slavesQuantity; i++)
+        {
+            FD_SET(pipesFromSlave[i][0], &read_fds);
+            if (pipesFromSlave[i][0] > max_fd)
+            {
+                max_fd = pipesFromSlave[i][0];
+            }
+        }
         fd_set tmp_fds = read_fds;
         int ready = select(max_fd + 1, &tmp_fds, NULL, NULL,NULL);
         if (ready == -1)
@@ -153,21 +155,6 @@ int main(int argc, char *argv[])
                 ssize_t bytes_read = read(pipesFromSlave[i][0], buffer, sizeof(buffer));
                 if (bytes_read > 0)
                 {
-                    /*int indice=0,indiceAnterior = 0;
-                    while (indice<bytes_read)
-                    {
-                        if(buffer[indice] == '\n' || buffer[indice]==0){
-                            write(1,buffer+indiceAnterior,indice - indiceAnterior);
-                            writeInMemory(memory,buffer+indiceAnterior,indice - indiceAnterior);  
-                            fprintf(file,"%s", buffer+indiceAnterior);
-                            filesInSlave[i]--;
-                            indiceAnterior=indice;
-                        }
-
-                        indice++;
-                    }*/
-                    
-
                     //write(1,buffer,bytes_read);
                     writeInMemory(memory,buffer,bytes_read);  
                     fprintf(file,"%s", buffer);
