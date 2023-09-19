@@ -1,6 +1,23 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-#include "main.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <string.h>
+#include <sys/select.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+#include <semaphore.h>
+#include "sharedMemory.h"
+
+#define SHAREDMEMORY "/my_shm"
+
+void sendFile(char *file, int index, int *filesInSlave, int *iArgs, int fd[][2]);
 
 int slavesQuantity, iArgs = 1,initialArgs;
 struct timeval timeout;
@@ -19,9 +36,7 @@ int main(int argc, char *argv[])
         slavesQuantity= 10;
 
     initialArgs = argc / 15 + 2;
-        //initialArgs = 1; // si mando un solo archivo, el valgrin tira 3 errores menos
- // como minimo que pase 2 (xq sino seria todo igual)
-    //}
+ 
 
     pid_t slaves[slavesQuantity];
     // Arrays de pipes para la comunicación entre slaves y padre
@@ -111,11 +126,6 @@ int main(int argc, char *argv[])
             }
         }
     }
-    
-    // PROBLEMAS CON VALGRIND
-    // creo el archivo .txt para el resultado
-
-    // EL FILE TIENE 2 PROBLEMAS CON VALGRIND
     FILE *file;
     file = fopen("result.txt", "w");
     if (file == NULL) {
@@ -155,13 +165,10 @@ int main(int argc, char *argv[])
                 ssize_t bytesRead = read(pipesFromSlave[i][0], buffer, sizeof(buffer));
                 if (bytesRead > 0)
                 {
-                    //write(1,buffer,bytes_read);
                     writeInMemory(memory,buffer,bytesRead);  
                     fprintf(file,"%s", buffer);
-                    //filesInSlave[i] = 0;
                     filesInSlave[i]--;
 
-                    //printf("Soy el proceso %d y me quedan %d archivos\n",i,filesInSlave[i]);
                     if (filesInSlave[i] == 0)
                     {
                         if (iArgs < argc)
@@ -190,10 +197,7 @@ int main(int argc, char *argv[])
                                 } 
                                 writeInMemory(memory,"+",2); 
                                 disconnectSharedMemory(memory);
-                                // finishedWriting(memory);
-                                // CIERRO EL ARCHIVO RESUL
-                                fclose(file);
-                                //destroySharedMemory(memory);                              
+                                fclose(file);                           
                                 exit(1);
                             }
                         }
