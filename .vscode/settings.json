@@ -1,7 +1,0 @@
-{
-    "files.associations": {
-        "__locale": "c",
-        "chrono": "c",
-        "functional": "c"
-    }
-}
