@@ -16,30 +16,30 @@ SharedMemoryPtr createSharedMemory(const char *name){
 
     int fd = shm_open(name, O_CREAT | O_TRUNC | O_RDWR, S_IRUSR | S_IWUSR);
     if (fd == -1) {
-        perror("shm_open");
+        perror("shm_open error");
         sem_unlink(name);
-        return NULL;
+        exit(1);
     }
 
     if (ftruncate(fd, sizeof(struct SharedMemory)) == -1) {
     //if (ftruncate(fd, BUFFERSIZE) == -1) {
-        perror("ftruncate");
+        perror("ftruncate error");
         close(fd);
         sem_unlink(name);
-        return NULL;
+        exit(1);
     }
 
     SharedMemoryPtr memory = (SharedMemoryPtr) mmap(NULL, sizeof(struct SharedMemory), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 
     if (memory == MAP_FAILED) {
-        perror("mmap");
+        perror("mmap error");
         close(fd);
         sem_unlink(name);
-        return NULL;
+        exit(1);
     }
 
     if (sem_init(&memory->canRead, 1, 0) == -1) {
-        perror("sem_init");
+        perror("sem_init error");
         exit(EXIT_FAILURE);
     }
 
@@ -60,16 +60,16 @@ void disconnectSharedMemory (SharedMemoryPtr memory){
 SharedMemoryPtr connectToSharedMemory(const char *name) {
     int fd = shm_open(name, O_RDWR, S_IRUSR | S_IRGRP | S_IROTH);
     if (fd == -1) {
-        perror("shm_open");
-        return NULL;
+        perror("shm_open error");
+        exit(1);
     }
 
     SharedMemoryPtr memory = (SharedMemoryPtr) mmap(NULL, sizeof(struct SharedMemory), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 
     if (memory == MAP_FAILED) {
-        perror("mmap");
+        perror("mmap error");
         close(fd);
-        return NULL;
+        exit(1);
     }
 
     memory->fd = fd;

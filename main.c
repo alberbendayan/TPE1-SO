@@ -152,11 +152,11 @@ int main(int argc, char *argv[])
             {
                 // Leer datos del descriptor de archivo pipes[i][0] y procesarlos
                 char buffer[BUFFERSIZE];
-                ssize_t bytes_read = read(pipesFromSlave[i][0], buffer, sizeof(buffer));
-                if (bytes_read > 0)
+                ssize_t bytesRead = read(pipesFromSlave[i][0], buffer, sizeof(buffer));
+                if (bytesRead > 0)
                 {
                     //write(1,buffer,bytes_read);
-                    writeInMemory(memory,buffer,bytes_read);  
+                    writeInMemory(memory,buffer,bytesRead);  
                     fprintf(file,"%s", buffer);
                     //filesInSlave[i] = 0;
                     filesInSlave[i]--;
@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
                         }
                     }
                 }
-                else if (bytes_read != 0)
+                else if (bytesRead != 0)
                 {
                     perror("Failed to read from pipe");
                 }
