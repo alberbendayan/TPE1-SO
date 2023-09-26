@@ -5,7 +5,7 @@ CFLAGS = -Wall
 # Archivos fuente para cada programa
 APP_SRCS = main.c sharedMemory.c
 CHILD_SRCS = child.c
-VIEW_SRCS = view.c sharedMemory.c
+VIEW_SRCS = view2.c sharedMemory.c
 
 # Objetos generados para cada programa
 APP_OBJS = $(APP_SRCS:.c=.o)

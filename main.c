@@ -135,6 +135,7 @@ int main(int argc, char *argv[])
     }
     SharedMemoryPtr memory = createSharedMemory(SHAREDMEMORY);
     puts(SHAREDMEMORY);
+    mkfifo("/tmp/namedPipe",0666);    // ABRIMOS EL PIPE CON NOMBRE
     while (1)
     {
         // Configurar los descriptores de archivo para select

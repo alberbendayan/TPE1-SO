@@ -4,6 +4,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #define READ_BUFFER_SIZE 1024
 #define MAX_LONG_RET 256
@@ -15,13 +18,17 @@ int main(int argc, char *argv[])
 {
     char hashMD5[MAX_LONG_RET];
     char msg[READ_BUFFER_SIZE];
+    int fifo=open("/tmp/namedPipe",O_WRONLY);
     while(fgets(msg,READ_BUFFER_SIZE,stdin)){
         makeMD5(msg,hashMD5);
         // lo q nos pasa con valgrind es que nos escribe tan rapido q el main lee todo como un solo bloque
         // sin valgrind no es necesario este sleep
-        sleep(1);
-        write(1,hashMD5,strlen(hashMD5)+1);
+        //sleep(1);
+
+        write(1,hashMD5,strlen(hashMD5)+1);        
+        write(fifo,hashMD5,strlen(hashMD5)+1);
     }
+    close(fifo);
     exit(1);
 }
 
